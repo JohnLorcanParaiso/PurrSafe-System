@@ -15,3 +15,5 @@ A student project built using PHP and MySQL. This web application helps users re
 2. Set up the database using the provided SQL schema.
 3. Configure PHP scripts to connect to the database.
 4. Run the application on localhost.
+
+5. SAMPLE CHANGE LANG
