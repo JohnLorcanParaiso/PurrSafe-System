@@ -13,11 +13,11 @@ $db_server = "localhost";
         echo ' ';
     }
 
-    // if($connection){
-    //     echo "Connection Successful";
-    // }
-    // else{
-    //     echo "Failed to connect";
-    // }
+    if($connection){
+        echo "Connection Successful";
+    }
+    else{
+        echo "Failed to connect";
+    }
 
 ?>
