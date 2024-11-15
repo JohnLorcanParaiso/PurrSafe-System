@@ -1,6 +1,67 @@
 <?php
 session_start();
 include('db.php');
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $action = isset($_POST['action']) ? $_POST['action'] : '';
+    
+    switch ($action) {
+        case 'dashboard':
+            header("Location: dashboard.php");
+            exit();
+            break;
+        case 'add_new_cat':
+            header("Location: add_cat.php");
+            exit();
+            break;
+        case 'report_cat':
+            header("Location: report_cat.php");
+            exit();
+            break;
+        case 'view_profile':
+            header("Location: view_profile.php");
+            exit();
+            break;
+        case 'help':
+            header("Location: help.php");
+            exit();
+            break;
+        case 'settings':
+            header("Location: settings.php");
+            exit();
+            break;
+        case 'search':
+            $search_query = isset($_POST['search']) ? $_POST['search'] : '';
+            header("Location: search.php?q=" . urlencode($search_query));
+            exit();
+            break;
+        case 'add_new':
+            header("Location: add_cat.php");
+            exit();
+            break;
+        case 'notifications':
+            header("Location: notifications.php");
+            exit();
+            break;
+        case 'profile':
+            header("Location: profile.php");
+            exit();
+            break;
+        case 'view_cat':
+            $cat_id = isset($_POST['cat_id']) ? $_POST['cat_id'] : '';
+            header("Location: view_cat.php?id=" . urlencode($cat_id));
+            exit();
+            break;
+        default:
+            header("Location: dashboard.php");
+            exit();
+            break;
+    }
+}
+
+$cat_profile_count = 50;  
+$report_count = 100;      
+$profile_count = 30;      
 ?>
 
 <!DOCTYPE html>
@@ -129,18 +190,26 @@ include('db.php');
             background: #f1f1f1;
             padding: 10px;
             width: 50%;
+            border-radius: 4px 0 0 4px;
         }
         .container .header .nav .search button{
             width: 40px;
             height: 40px;
             border: none;
+            background: #f1f1f1;
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            border-radius: 0 4px 4px 0;
+            transition: background-color 0.3s ease;
+        }
+        .container .header .nav .search button:hover{
+            background: #e1e1e1;
         }
         .container .header .nav .search button img{
-            width: 30px;
-            height: 30px;
+            width: 20px;
+            height: 20px;
         }
         .container .header .nav .user{
             flex: 1;
@@ -173,18 +242,40 @@ include('db.php');
             padding: 20px 15px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
+            gap: 30px;
             flex-wrap: wrap;
         }
         .container .content .cards .card{
-            width: 250px;
-            height: 100px;
+            width: 300px;
+            height: 180px;
             background: white;
             margin: 20px 10px;
             display: flex;
             align-items: center;
-            justify-content: space-around;
+            justify-content: center;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) ;
+            transition: transform 0.3s ease;
+        }
+        .container .content .cards .card:hover{
+            transform: translateY(-5px);
+        }
+        .container .content .cards .card .box{
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+        }
+        .container .content .cards .card .box h1{
+            font-size: 60px;
+            margin-bottom: 15px;
+            color: #444;
+            font-weight: 600;
+        }
+        .container .content .cards .card .box h3{
+            font-size: 18px;
+            color: #999;
+            line-height: 1.4;
+            padding: 0 10px;
         }
         .container .content .content-2{
             min-height: 60vh;
@@ -253,10 +344,12 @@ include('db.php');
     <div class="container">
         <div class="header">
             <div class="nav">
-                <div class="search">
-                    <input type="text" placeholder="Search..">
-                    <button type="submit"><img src="search.png" alt="search"></button>
-                </div>
+                <form method="POST" class="search">
+                    <input type="text" name="search" placeholder="Search..">
+                    <button type="submit" name="action" value="search">
+                        <img src="search.png" alt="search" style="cursor: pointer;">
+                    </button>
+                </form>
                 <div class="user">
                     <button type="submit" class="btn">Add New</button>
                     <button type="submit"><img src="notifications.png" alt="notifications"></button>
@@ -379,66 +472,5 @@ include('db.php');
                 </div>
         </div>
     </div>
-</body>
-</html>
-    <?php
-    
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $action = isset($_POST['action']) ? $_POST['action'] : '';
-        
-        switch ($action) {
-            case 'dashboard':
-                header("Location: dashboard.php");
-                break;
-            
-            case 'add_new_cat':
-                header("Location: add_cat.php");
-                break;
-            
-            case 'report_cat':
-                header("Location: report_cat.php");
-                break;
-            
-            case 'view_profile':
-                header("Location: view_profile.php");
-                break;
-            
-            case 'help':
-                header("Location: help.php");
-                break;
-            
-            case 'settings':
-                header("Location: settings.php");
-                break;
-            
-            case 'search':
-                $search_query = isset($_POST['search']) ? $_POST['search'] : '';
-                header("Location: search.php?q=" . urlencode($search_query));
-                break;
-            
-            case 'add_new':
-                header("Location: add_cat.php");
-                break;
-            
-            case 'notifications':
-                header("Location: notifications.php");
-                break;
-            
-            case 'profile':
-                header("Location: profile.php");
-                break;
-            
-            case 'view_cat':
-                $cat_id = isset($_POST['cat_id']) ? $_POST['cat_id'] : '';
-                header("Location: view_cat.php?id=" . urlencode($cat_id));
-                break;
-            
-            default:
-                header("Location: dashboard.php");
-                break;
-        }
-        exit();
-    }
-    ?>
 </body>
 </html>
