@@ -214,12 +214,80 @@ $profile_count = 30;
         .container .header .nav .user{
             flex: 1;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
+            gap: 20px;
         }
-        .container .header .nav .user img{
+        .container .header .nav .user button {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container .header .nav .user .icon-btn {
             width: 40px;
             height: 40px;
+            padding: 8px;
+            border-radius: 50%;
+            overflow: hidden;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .container .header .nav .user .icon-btn:hover {
+            transform: scale(1.1);
+            background-color: #f1f1f1;
+        }
+
+        .container .header .nav .user .img-case button {
+            width: 40px;
+            height: 40px;
+            padding: 8px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .container .header .nav .user button img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .container .header .nav .user .btn {
+            background: #E8F0F7;
+            color: black;
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .container .header .nav .user .btn:hover {
+            background: #D1E4F5;
+        }
+
+        .container .header .nav .user .profile-btn {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border-radius: 50%;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .container .header .nav .user .profile-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .container .header .nav .user .profile-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .container .header .nav .user .img-case{
             position: relative;
@@ -351,10 +419,20 @@ $profile_count = 30;
                     </button>
                 </form>
                 <div class="user">
-                    <button type="submit" class="btn">Add New</button>
-                    <button type="submit"><img src="notifications.png" alt="notifications"></button>
+                    <form method="POST" style="display: inline;">
+                        <button type="submit" name="action" value="add_new" class="btn">Add New</button>
+                    </form>
+                    <form method="POST" style="display: inline;">
+                        <button type="submit" name="action" value="notifications" class="icon-btn">
+                            <img src="notifications.png" alt="notifications" style="cursor: pointer;">
+                        </button>
+                    </form>
                     <div class="img-case">
-                        <button type="submit"><img src="user.png" alt="user profile"></button>
+                        <form method="POST" style="display: inline;">
+                            <button type="submit" name="action" value="profile" class="icon-btn">
+                                <img src="user.png" alt="user profile" style="cursor: pointer;">
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
