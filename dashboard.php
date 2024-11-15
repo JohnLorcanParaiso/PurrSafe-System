@@ -9,53 +9,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         case 'dashboard':
             header("Location: dashboard.php");
             exit();
-            break;
+            
         case 'add_new_cat':
             header("Location: add_new_cat.php");
             exit();
-            break;
+            
         case 'report_cat':
             header("Location: report_cat.php");
             exit();
-            break;
+            
         case 'view_profile':
             header("Location: view_profile.php");
             exit();
-            break;
+            
         case 'help':
             header("Location: help.php");
             exit();
-            break;
+            
         case 'settings':
             header("Location: settings.php");
             exit();
-            break;
+            
         case 'search':
             $search_query = isset($_POST['search']) ? $_POST['search'] : '';
             header("Location: search.php?q=" . urlencode($search_query));
             exit();
-            break;
-        case 'add_new':
-            header("Location: add_cat.php");
-            exit();
-            break;
-        case 'notifications':
-            header("Location: notifications.php");
-            exit();
-            break;
-        case 'profile':
-            header("Location: profile.php");
-            exit();
-            break;
-        case 'view_cat':
-            $cat_id = isset($_POST['cat_id']) ? $_POST['cat_id'] : '';
-            header("Location: view_cat.php?id=" . urlencode($cat_id));
-            exit();
-            break;
+            
         default:
             header("Location: dashboard.php");
             exit();
-            break;
     }
 }
 
