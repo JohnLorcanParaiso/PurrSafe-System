@@ -35,6 +35,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             header("Location: search.php?q=" . urlencode($search_query));
             exit();
             
+        case 'profile':
+            header("Location: view_edit_profile.php");
+            exit();
+            
+        case 'add_cat':
+            header("Location: add_new_cat.php");
+            exit();
+            
         default:
             header("Location: dashboard.php");
             exit();
@@ -466,7 +474,7 @@ $profile_count = 30;
                 </form>
                 <div class="user">
                     <form method="POST" style="display: inline;">
-                        <button type="submit" name="action" value="add_new" class="btn">Add New</button>
+                        <button type="submit" name="action" value="add_cat" class="btn">Add New</button>
                     </form>
                     <form method="POST" style="display: inline;">
                         <button type="submit" name="action" value="notifications" class="icon-btn">
@@ -509,7 +517,9 @@ $profile_count = 30;
                 <div class="report-lost">
                     <div class="title">
                         <h2>Report Lost and Found Cat</h2>
-                        <button type="submit" class="btn">View All</button>
+                        <form method="POST" style="display: inline;">
+                            <button type="submit" name="action" value="report_cat" class="btn">View All</button>
+                        </form>
                     </div>
                     <table>
                         <tr>
@@ -568,29 +578,49 @@ $profile_count = 30;
                             <th>Option</th>
                         </tr>
                         <tr>
-                            <td><button type="submit"><img src="user.png" alt="user"></button></td>
+                            <td><img src="user.png" alt="user"></td>
                             <td>Dexter</td>
-                            <td><button type="submit"><img src="info.png" alt="info"></button></td>
+                            <td>
+                                <form method="POST" style="display: inline;">
+                                    <button type="submit" name="action" value="report_cat" class="btn">View</button>
+                                </form>
+                            </td>
                         </tr>
                         <tr>
-                            <td><button type="submit"><img src="user.png" alt="user"></button></td>
+                            <td><img src="user.png" alt="user"></td>
                             <td>Dexter</td>
-                            <td><button type="submit"><img src="info.png" alt="info"></button></td>
+                            <td>
+                                <form method="POST" style="display: inline;">
+                                    <button type="submit" name="action" value="report_cat" class="btn">View</button>
+                                </form>
+                            </td>
                         </tr>
                         <tr>
-                            <td><button type="submit"><img src="user.png" alt="user"></button></td>
+                            <td><img src="user.png" alt="user"></td>
                             <td>Dexter</td>
-                            <td><button type="submit"><img src="info.png" alt="info"></button></td>
+                            <td>
+                                <form method="POST" style="display: inline;">
+                                    <button type="submit" name="action" value="report_cat" class="btn">View</button>
+                                </form>
+                            </td>
                         </tr>
                         <tr>
-                            <td><button type="submit"><img src="user.png" alt="user"></button></td>
+                            <td><img src="user.png" alt="user"></td>
                             <td>Dexter</td>
-                            <td><button type="submit"><img src="info.png" alt="info"></button></td>
+                            <td>
+                                <form method="POST" style="display: inline;">
+                                    <button type="submit" name="action" value="report_cat" class="btn">View</button>
+                                </form>
+                            </td>
                         </tr>
                         <tr>
-                            <td><button type="submit"><img src="user.png" alt="user"></button></td>
+                            <td><img src="user.png" alt="user"></td>
                             <td>Dexter</td>
-                            <td><button type="submit"><img src="info.png" alt="info"></button></td>
+                            <td>
+                                <form method="POST" style="display: inline;">
+                                    <button type="submit" name="action" value="report_cat" class="btn">View</button>
+                                </form>
+                            </td>
                         </tr>
                     </table>
                 </div>
