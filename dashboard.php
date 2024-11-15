@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit();
             break;
         case 'add_new_cat':
-            header("Location: add_cat.php");
+            header("Location: add_new_cat.php");
             exit();
             break;
         case 'report_cat':
@@ -392,6 +392,34 @@ $profile_count = 30;
                 justify-content: center;
             }
         }
+        .side-menu .menu-btn {
+            background: none;
+            border: none;
+            color: black;
+            font-size: 20px;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            padding: 0;
+        }
+        .side-menu li {
+            font-size: 20px;
+            padding: 10px 40px;
+            color: black;
+            margin: 5%;
+            display: flex;
+            align-items: center;
+        }
+        .side-menu li:hover {
+            background: white;
+            color: lightblue;
+        }
+        .side-menu li:hover .menu-btn {
+            color: lightblue;
+        }
+        .side-menu form {
+            width: 100%;
+        }
     </style>
     <title>User Panel</title>
 </head>
@@ -401,12 +429,48 @@ $profile_count = 30;
             <img src="logo.png" class="logo">
         </div>
         <ul>
-            <li><span>Dashboard</span></li>
-            <li><span>Add New Cat Profile</span></li>
-            <li><span>Report Lost and Found Cat</span></li>
-            <li><span>View/Edit Own Profile</span></li>
-            <li><span>Help</span></li>
-            <li><span>Settings</span></li>
+            <li>
+                <form method="POST" style="display: inline;">
+                    <button type="submit" name="action" value="dashboard" class="menu-btn">
+                        <span>Dashboard</span>
+                    </button>
+                </form>
+            </li>
+            <li>
+                <form method="POST" style="display: inline;">
+                    <button type="submit" name="action" value="add_new_cat" class="menu-btn">
+                        <span>Add New Cat Profile</span>
+                    </button>
+                </form>
+            </li>
+            <li>
+                <form method="POST" style="display: inline;">
+                    <button type="submit" name="action" value="report_cat" class="menu-btn">
+                        <span>Report Lost and Found Cat</span>
+                    </button>
+                </form>
+            </li>
+            <li>
+                <form method="POST" style="display: inline;">
+                    <button type="submit" name="action" value="view_profile" class="menu-btn">
+                        <span>View/Edit Own Profile</span>
+                    </button>
+                </form>
+            </li>
+            <li>
+                <form method="POST" style="display: inline;">
+                    <button type="submit" name="action" value="help" class="menu-btn">
+                        <span>Help</span>
+                    </button>
+                </form>
+            </li>
+            <li>
+                <form method="POST" style="display: inline;">
+                    <button type="submit" name="action" value="settings" class="menu-btn">
+                        <span>Settings</span>
+                    </button>
+                </form>
+            </li>
         </ul>
     </div>
     <div class="container">
