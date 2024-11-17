@@ -1,14 +1,13 @@
 <?php
 require_once 'userAuth.php';
 
-// Update the session check
 $login = new Login();
 if (!$login->isLoggedIn()) {
     header('Location: login.php');
     exit();
 }
 
-// Add logout handling
+//Logout
 if (isset($_POST['action']) && $_POST['action'] === 'logout') {
     $login->logout();
     header('Location: login.php');
@@ -64,7 +63,6 @@ $cat_profile_count = 50;
 $report_count = 100;      
 $profile_count = 30;      
 
-// Add this near the top after session check
 $username = $_SESSION['username'] ?? 'Guest';
 $fullname = $_SESSION['fullname'] ?? 'Guest User';
 ?>
@@ -149,7 +147,6 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                     </div>
                 </form>
                 <div class="d-flex align-items-center gap-3">
-                    <!-- Notification Button -->
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="images/notifications.png" alt="notifications" style="width: 20px;">
@@ -208,7 +205,6 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                             </li>
                         </ul>
                     </div>
-                    <!-- Profile Button -->
                     <form method="POST" class="m-0">
                         <button type="submit" name="action" value="profile" class="btn btn-outline-secondary rounded-circle p-2">
                             <img src="images/user.png" alt="user profile" style="width: 28px; height: 28px;">
