@@ -6,9 +6,6 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once 'db.php';
 
 class Register extends Database {
-    public function __construct() {
-        parent::__construct();
-    }
 
     public function registerUser($fullname, $username, $email, $password) {
         try {
@@ -43,9 +40,6 @@ class Register extends Database {
 }
 
 class Login extends Database {
-    public function __construct() {
-        parent::__construct();
-    }
 
     public function loginUser($username, $password) {
         try {
