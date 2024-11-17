@@ -25,16 +25,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             header("Location: dashboard.php");
             exit();
             
-        case 'add_new_cat':
+        case 'create':
             header("Location: create.php");
             exit();
             
-        case 'report_cat':
-            header("Location: lfreport.php");
+        case 'view':
+            header("Location: view.php");
             exit();
             
-        case 'view_profile':
-            header("Location: viewpf.php");
+        case 'myProfile':
+            header("Location: profile.php");
             exit();
             
         case 'help':
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit();
             
         case 'profile':
-            header("Location: viewpf.php");
+            header("Location: profile.php");
             exit();
             
         default:
@@ -95,21 +95,21 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
             </li>
             <li class="nav-item">
                 <form method="POST">
-                    <button type="submit" name="action" value="add_new_cat" class="btn btn-link nav-link text-dark">
+                    <button type="submit" name="action" value="create" class="btn btn-link nav-link text-dark">
                         Create New Report
                     </button>
                 </form>
             </li>
             <li class="nav-item">
                 <form method="POST">
-                    <button type="submit" name="action" value="report_cat" class="btn btn-link nav-link text-dark">
+                    <button type="submit" name="action" value="view" class="btn btn-link nav-link text-dark">
                         Lost and Found Cat
                     </button>
                 </form>
             </li>
             <li class="nav-item">
                 <form method="POST">
-                    <button type="submit" name="action" value="view_profile" class="btn btn-link nav-link text-dark">
+                    <button type="submit" name="action" value="myProfile" class="btn btn-link nav-link text-dark">
                         My Profile
                     </button>
                 </form>
@@ -253,7 +253,7 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                             <div class="d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">Report Lost and Found Cat</h5>
                                 <form method="POST" class="m-0">
-                                    <button type="submit" name="action" value="report_cat" class="btn btn-custom">View All</button>
+                                    <button type="submit" name="action" value="view" class="btn btn-custom">View All</button>
                                 </form>
                             </div>
                         </div>
