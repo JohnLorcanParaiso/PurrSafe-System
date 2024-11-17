@@ -71,12 +71,13 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <title>User Panel</title>
 </head>
 <body>
     <div class="side-menu">
@@ -86,50 +87,50 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
         <ul class="nav flex-column">
             <li class="nav-item">
                 <form method="POST">
-                    <button type="submit" name="action" value="dashboard" class="btn btn-link nav-link text-dark">
-                        Dashboard
+                    <button type="submit" name="action" value="dashboard" class="btn btn-link nav-link text-dark active">
+                        <i class="fas fa-home me-2"></i> Dashboard
                     </button>
                 </form>
             </li>
             <li class="nav-item">
                 <form method="POST">
                     <button type="submit" name="action" value="create" class="btn btn-link nav-link text-dark">
-                        Create New Report
+                        <i class="fas fa-plus-circle me-2"></i> Create New Report
                     </button>
                 </form>
             </li>
             <li class="nav-item">
                 <form method="POST">
                     <button type="submit" name="action" value="view" class="btn btn-link nav-link text-dark">
-                        Lost and Found Cat
+                        <i class="fas fa-search me-2"></i> Lost and Found Cat
                     </button>
                 </form>
             </li>
             <li class="nav-item">
                 <form method="POST">
                     <button type="submit" name="action" value="myProfile" class="btn btn-link nav-link text-dark">
-                        My Profile
+                        <i class="fas fa-user me-2"></i> My Profile
                     </button>
                 </form>
             </li>
             <li class="nav-item">
                 <form method="POST">
                     <button type="submit" name="action" value="help" class="btn btn-link nav-link text-dark">
-                        Help
+                        <i class="fas fa-question-circle me-2"></i> Help
                     </button>
                 </form>
             </li>
             <li class="nav-item">
                 <form method="POST">
                     <button type="submit" name="action" value="settings" class="btn btn-link nav-link text-dark">
-                        Settings
+                        <i class="fas fa-cog me-2"></i> Settings
                     </button>
                 </form>
             </li>
             <li class="nav-item mt-auto">
                 <form method="POST">
                     <button type="submit" name="action" value="logout" class="btn btn-link nav-link text-dark">
-                        Logout
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
                     </button>
                 </form>
             </li>
@@ -147,6 +148,7 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                     </div>
                 </form>
                 <div class="d-flex align-items-center gap-3">
+        
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="images/notifications.png" alt="notifications" style="width: 20px;">
@@ -205,6 +207,7 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                             </li>
                         </ul>
                     </div>
+                    <!-- Profile Button -->
                     <form method="POST" class="m-0">
                         <button type="submit" name="action" value="profile" class="btn btn-outline-secondary rounded-circle p-2">
                             <img src="images/user.png" alt="user profile" style="width: 28px; height: 28px;">
