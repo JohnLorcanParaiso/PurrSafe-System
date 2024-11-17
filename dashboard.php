@@ -57,14 +57,82 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             header("Location: dashboard.php");
             exit();
     }
-}
-
-$cat_profile_count = 50;  
-$report_count = 100;      
-$profile_count = 30;      
+}    
 
 $username = $_SESSION['username'] ?? 'Guest';
 $fullname = $_SESSION['fullname'] ?? 'Guest User';
+
+// Replace the direct SQL query with a new class method
+class DashboardData extends Database {
+    public function getRecentReports($limit = 5) {
+        try {
+            $stmt = $this->conn->prepare("SELECT name, breed, gender, color FROM reports ORDER BY created_at DESC LIMIT ?");
+            $stmt->bind_param("i", $limit);
+            $stmt->execute();
+            return $stmt->get_result();
+        } catch (Exception $e) {
+            // Log error or handle it appropriately
+            return false;
+        }
+    }
+
+    public function getLostCats($limit = 5) {
+        try {
+            $stmt = $this->conn->prepare(
+                "SELECT l.id, l.cat_name, l.cat_image, u.fullname as owner_name 
+                 FROM lost_cats l 
+                 JOIN users u ON l.user_id = u.id 
+                 ORDER BY l.created_at DESC 
+                 LIMIT ?"
+            );
+            $stmt->bind_param("i", $limit);
+            $stmt->execute();
+            return $stmt->get_result();
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    public function getCatProfileCount() {
+        try {
+            $stmt = $this->conn->prepare("SELECT COUNT(*) as count FROM cat_profiles");
+            $stmt->execute();
+            $result = $stmt->get_result();
+            return $result->fetch_assoc()['count'];
+        } catch (Exception $e) {
+            return 0;
+        }
+    }
+
+    public function getReportCount() {
+        try {
+            $stmt = $this->conn->prepare("SELECT COUNT(*) as count FROM reports");
+            $stmt->execute();
+            $result = $stmt->get_result();
+            return $result->fetch_assoc()['count'];
+        } catch (Exception $e) {
+            return 0;
+        }
+    }
+
+    public function getProfileCount() {
+        try {
+            $stmt = $this->conn->prepare("SELECT COUNT(*) as count FROM users");
+            $stmt->execute();
+            $result = $stmt->get_result();
+            return $result->fetch_assoc()['count'];
+        } catch (Exception $e) {
+            return 0;
+        }
+    }
+}
+
+$dashboard = new DashboardData();
+$result = $dashboard->getRecentReports();
+$lostCats = $dashboard->getLostCats();
+$cat_profile_count = $dashboard->getCatProfileCount();
+$report_count = $dashboard->getReportCount();
+$profile_count = $dashboard->getProfileCount();
 ?>
 
 <!DOCTYPE html>
@@ -102,7 +170,7 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
             <li class="nav-item">
                 <form method="POST">
                     <button type="submit" name="action" value="view" class="btn btn-link nav-link text-dark">
-                        <i class="fas fa-search me-2"></i> Lost and Found Cat
+                        <i class="fas fa-eye me-2"></i> View Reports
                     </button>
                 </form>
             </li>
@@ -207,7 +275,6 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                             </li>
                         </ul>
                     </div>
-                    <!-- Profile Button -->
                     <form method="POST" class="m-0">
                         <button type="submit" name="action" value="profile" class="btn btn-outline-secondary rounded-circle p-2">
                             <img src="images/user.png" alt="user profile" style="width: 28px; height: 28px;">
@@ -219,27 +286,19 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
 
         <main class="main-content">
             <div class="row g-4 mb-4">
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="card h-100 shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <h1 class="display-4 mb-3"><?php echo $cat_profile_count; ?></h1>
-                            <h3 class="text-muted h5">Add New Cat Profile</h3>
+                        <div class="card-body text-center p-5">
+                            <h1 class="display-3 mb-3"><?php echo $cat_profile_count; ?></h1>
+                            <h3 class="text-muted h4">Missing Cat</h3>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="card h-100 shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <h1 class="display-4 mb-3"><?php echo $report_count; ?></h1>
-                            <h3 class="text-muted h5">Report Lost and Found Cat</h3>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <h1 class="display-4 mb-3"><?php echo $profile_count; ?></h1>
-                            <h3 class="text-muted h5">View Profile</h3>
+                        <div class="card-body text-center p-5">
+                            <h1 class="display-3 mb-3"><?php echo $report_count; ?></h1>
+                            <h3 class="text-muted h4">Found Cat</h3>
                         </div>
                     </div>
                 </div>
@@ -269,51 +328,32 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td class="px-4">Dexter</td>
-                                            <td>Persian</td>
-                                            <td>Male</td>
-                                            <td>White</td>
-                                            <td class="text-end px-4">
-                                                <button type="submit" class="btn btn-custom btn-sm">View</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-4">Dexter</td>
-                                            <td>Persian</td>
-                                            <td>Male</td>
-                                            <td>White</td>
-                                            <td class="text-end px-4">
-                                                <button type="submit" class="btn btn-custom btn-sm">View</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-4">Dexter</td>
-                                            <td>Persian</td>
-                                            <td>Male</td>
-                                            <td>White</td>
-                                            <td class="text-end px-4">
-                                                <button type="submit" class="btn btn-custom btn-sm">View</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-4">Dexter</td>
-                                            <td>Persian</td>
-                                            <td>Male</td>
-                                            <td>White</td>
-                                            <td class="text-end px-4">
-                                                <button type="submit" class="btn btn-custom btn-sm">View</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-4">Dexter</td>
-                                            <td>Persian</td>
-                                            <td>Male</td>
-                                            <td>White</td>
-                                            <td class="text-end px-4">
-                                                <button type="submit" class="btn btn-custom btn-sm">View</button>
-                                            </td>
-                                        </tr>
+                                        <?php 
+                                        if ($result && $result->num_rows > 0) {
+                                            while($row = $result->fetch_assoc()) {
+                                                ?>
+                                                <tr>
+                                                    <td class="px-4"><?php echo htmlspecialchars($row['name']); ?></td>
+                                                    <td><?php echo htmlspecialchars($row['breed']); ?></td>
+                                                    <td><?php echo htmlspecialchars($row['gender']); ?></td>
+                                                    <td><?php echo htmlspecialchars($row['color']); ?></td>
+                                                    <td class="text-end px-4">
+                                                        <form method="POST" class="m-0 d-inline">
+                                                            <input type="hidden" name="report_id" value="<?php echo $row['id']; ?>">
+                                                            <button type="submit" name="action" value="view_report" class="btn btn-custom btn-sm">View</button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                                <?php
+                                            }
+                                        } else {
+                                            ?>
+                                            <tr>
+                                                <td colspan="5" class="text-center">No reports found</td>
+                                            </tr>
+                                            <?php
+                                        }
+                                        ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -324,8 +364,10 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                     <div class="card shadow-sm">
                         <div class="card-header bg-white py-3">
                             <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">New Cats</h5>
-                                <button type="submit" class="btn btn-custom">View All</button>
+                                <h5 class="mb-0">Owner's Lost Cat Info</h5>
+                                <form method="POST" class="m-0">
+                                    <button type="submit" name="action" value="view_lost" class="btn btn-custom">View All</button>
+                                </form>
                             </div>
                         </div>
                         <div class="card-body p-0">
@@ -333,57 +375,41 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                 <table class="table table-hover mb-0">
                                     <thead>
                                         <tr>
-                                            <th class="px-4">Profile</th>
+                                            <th class="px-4">Cat</th>
                                             <th>Name</th>
+                                            <th>Owner</th>
                                             <th class="text-end px-4">Option</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td class="px-4">
-                                                <img src="images/user.png" alt="user" style="width: 30px; height: 30px; border-radius: 50%;">
-                                            </td>
-                                            <td>Dexter</td>
-                                            <td class="text-end px-4">
-                                                <button type="submit" class="btn btn-custom btn-sm">View</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-4">
-                                                <img src="images/user.png" alt="user" style="width: 30px; height: 30px; border-radius: 50%;">
-                                            </td>
-                                            <td>Dexter</td>
-                                            <td class="text-end px-4">
-                                                <button type="submit" class="btn btn-custom btn-sm">View</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-4">
-                                                <img src="images/user.png" alt="user" style="width: 30px; height: 30px; border-radius: 50%;">
-                                            </td>
-                                            <td>Dexter</td>
-                                            <td class="text-end px-4">
-                                                <button type="submit" class="btn btn-custom btn-sm">View</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-4">
-                                                <img src="images/user.png" alt="user" style="width: 30px; height: 30px; border-radius: 50%;">
-                                            </td>
-                                            <td>Dexter</td>
-                                            <td class="text-end px-4">
-                                                <button type="submit" class="btn btn-custom btn-sm">View</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-4">
-                                                <img src="images/user.png" alt="user" style="width: 30px; height: 30px; border-radius: 50%;">
-                                            </td>
-                                            <td>Dexter</td>
-                                            <td class="text-end px-4">
-                                                <button type="submit" class="btn btn-custom btn-sm">View</button>
-                                            </td>
-                                        </tr>
+                                        <?php 
+                                        if ($lostCats && $lostCats->num_rows > 0):
+                                            while($cat = $lostCats->fetch_assoc()):
+                                                $catImage = !empty($cat['cat_image']) ? $cat['cat_image'] : 'images/default-cat.png';
+                                        ?>
+                                            <tr>
+                                                <td class="px-4">
+                                                    <img src="<?php echo htmlspecialchars($catImage); ?>" alt="cat" 
+                                                         style="width: 30px; height: 30px; border-radius: 50%;">
+                                                </td>
+                                                <td><?php echo htmlspecialchars($cat['cat_name']); ?></td>
+                                                <td><?php echo htmlspecialchars($cat['owner_name']); ?></td>
+                                                <td class="text-end px-4">
+                                                    <form method="POST" class="m-0">
+                                                        <input type="hidden" name="lost_cat_id" value="<?php echo $cat['id']; ?>">
+                                                        <button type="submit" name="action" value="view_lost_cat" 
+                                                                class="btn btn-custom btn-sm">View</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        <?php 
+                                            endwhile;
+                                        else:
+                                        ?>
+                                            <tr>
+                                                <td colspan="4" class="text-center">No lost cats reported</td>
+                                            </tr>
+                                        <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
