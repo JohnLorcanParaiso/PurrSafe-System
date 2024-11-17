@@ -26,15 +26,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit();
             
         case 'add_new_cat':
-            header("Location: add_new_cat.php");
+            header("Location: create.php");
             exit();
             
         case 'report_cat':
-            header("Location: report_cat.php");
+            header("Location: lfreport.php");
             exit();
             
         case 'view_profile':
-            header("Location: view_profile.php");
+            header("Location: viewpf.php");
             exit();
             
         case 'help':
@@ -51,11 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit();
             
         case 'profile':
-            header("Location: view_edit_profile.php");
-            exit();
-            
-        case 'add_cat':
-            header("Location: add_new_cat.php");
+            header("Location: viewpf.php");
             exit();
             
         default:
