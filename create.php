@@ -55,6 +55,8 @@ $username = $_SESSION['username'] ?? 'Guest';
 $fullname = $_SESSION['fullname'] ?? 'Guest User';
 ?>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,21 +70,21 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
     <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
-    <div class="side-menu">
+<div class="side-menu">
         <div class="text-center">
             <img src="images/logo.png" class="logo" style="width: 150px; height: 150px; margin: 20px auto; display: block;">
         </div>
         <ul class="nav flex-column">
             <li class="nav-item">
                 <form method="POST">
-                    <button type="submit" name="action" value="dashboard" class="btn btn-link nav-link text-dark">
+                    <button type="submit" name="action" value="dashboard" class="btn btn-link nav-link text-dark active">
                         <i class="fas fa-home me-2"></i> Dashboard
                     </button>
                 </form>
             </li>
             <li class="nav-item">
                 <form method="POST">
-                    <button type="submit" name="action" value="create" class="btn btn-link nav-link text-dark active">
+                    <button type="submit" name="action" value="create" class="btn btn-link nav-link text-dark">
                         <i class="fas fa-plus-circle me-2"></i> Create New Report
                     </button>
                 </form>
@@ -124,7 +126,6 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
             </li>
         </ul>
     </div>
-
     <div class="container-custom">
         <header class="header-container mb-4">
             <div class="d-flex justify-content-between align-items-center gap-3">
@@ -216,8 +217,7 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                             </div>
                         </div>
                         <div class="card-body px-4 py-5">
-                            <form method="POST" action="process_report.php" enctype="multipart/form-data">
-                                <!-- Cat Information -->
+                            <form action="process_report.php" method="POST" enctype="multipart/form-data">
                                 <div class="mb-4">
                                     <h6 class="fw-bold mb-3">Cat Information</h6>
                                     <div class="row g-3">
@@ -313,5 +313,71 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+    <script>
+    <?php if (isset($_SESSION['report_success'])): ?>
+        Swal.fire({
+            title: 'Success!',
+            text: 'Your report has been successfully submitted.',
+            icon: 'success',
+            confirmButtonColor: '#3085d6'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = 'view.php';
+            }
+        });
+        <?php unset($_SESSION['report_success']); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['report_error'])): ?>
+        Swal.fire({
+            title: 'Error!',
+            text: '<?php echo $_SESSION['report_error']; ?>',
+            icon: 'error',
+            confirmButtonColor: '#d33'
+        });
+        <?php unset($_SESSION['report_error']); ?>
+    <?php endif; ?>
+
+    document.querySelector('form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const requiredFields = this.querySelectorAll('[required]');
+        let isValid = true;
+        let firstInvalidField = null;
+        
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+                field.classList.add('is-invalid');
+                if (!firstInvalidField) firstInvalidField = field;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        const fileInput = this.querySelector('input[type="file"]');
+        if (fileInput && fileInput.files.length === 0) {
+            isValid = false;
+            fileInput.classList.add('is-invalid');
+            if (!firstInvalidField) firstInvalidField = fileInput;
+        }
+        
+        if (!isValid) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Please fill in all required fields and upload at least one image.',
+                icon: 'error',
+                confirmButtonColor: '#d33'
+            });
+            
+            if (firstInvalidField) {
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        } else {
+            this.submit();
+        }
+    });
+    </script>
 </body>
 </html> 
