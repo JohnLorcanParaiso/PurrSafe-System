@@ -62,7 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 $username = $_SESSION['username'] ?? 'Guest';
 $fullname = $_SESSION['fullname'] ?? 'Guest User';
 
-// Replace the direct SQL query with a new class method
 class DashboardData extends Database {
     public function getRecentReports($limit = 5) {
         try {
@@ -71,7 +70,6 @@ class DashboardData extends Database {
             $stmt->execute();
             return $stmt->get_result();
         } catch (Exception $e) {
-            // Log error or handle it appropriately
             return false;
         }
     }
@@ -290,7 +288,7 @@ $profile_count = $dashboard->getProfileCount();
                     <div class="card h-100 shadow-sm">
                         <div class="card-body text-center p-5">
                             <h1 class="display-3 mb-3"><?php echo $cat_profile_count; ?></h1>
-                            <h3 class="text-muted h4">Missing Cat</h3>
+                            <h3 class="text-muted h4">Found Cat</h3>
                         </div>
                     </div>
                 </div>
@@ -298,7 +296,7 @@ $profile_count = $dashboard->getProfileCount();
                     <div class="card h-100 shadow-sm">
                         <div class="card-body text-center p-5">
                             <h1 class="display-3 mb-3"><?php echo $report_count; ?></h1>
-                            <h3 class="text-muted h4">Found Cat</h3>
+                            <h3 class="text-muted h4">Missing Cat</h3>
                         </div>
                     </div>
                 </div>
