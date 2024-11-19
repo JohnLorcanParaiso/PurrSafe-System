@@ -217,9 +217,9 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                         </div>
                         <div class="card-body px-4 py-5">
                             <form method="POST" action="process_report.php" enctype="multipart/form-data">
-                                <!-- Basic Information -->
+                                <!-- Cat Information -->
                                 <div class="mb-4">
-                                    <h6 class="fw-bold mb-3">Basic Information</h6>
+                                    <h6 class="fw-bold mb-3">Cat Information</h6>
                                     <div class="row g-3">
                                         <div class="col-md-6">
                                             <label class="form-label">Cat Name</label>
@@ -259,9 +259,9 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                     <h6 class="fw-bold mb-3">Additional Details</h6>
                                     <div class="row g-3">
                                         <div class="col-12">
-                                            <label class="form-label">Distinctive Features</label>
+                                            <label class="form-label">Description</label>
                                             <textarea class="form-control" name="description" rows="3" 
-                                                placeholder="Any special markings, behaviors, or identifying features" required></textarea>
+                                                placeholder="Description about the cat" required></textarea>
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Last Seen Date</label>
@@ -275,10 +275,25 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                 </div>
 
                                 <div class="mb-4">
+                                    <h6 class="fw-bold mb-3">Owner Information</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Owner's Name</label>
+                                            <input type="text" class="form-control" name="owner_name" 
+                                                placeholder="Enter owner's name" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Phone Number</label>
+                                            <input type="tel" class="form-control" name="phone_number" 
+                                                placeholder="Enter phone number" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
                                     <h6 class="fw-bold mb-3">Upload Images</h6>
                                     <div class="row g-3">
                                         <div class="col-12">
-                                            <label class="form-label">Upload Images</label>
                                             <input type="file" class="form-control" name="cat_images[]" multiple accept="image/*">
                                             <div class="form-text">You can upload multiple images of your cat</div>
                                         </div>
