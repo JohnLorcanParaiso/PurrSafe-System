@@ -188,7 +188,7 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                                 $images = explode(',', $report['images']);
                                                 if (!empty($images[0])): 
                                                 ?>
-                                                    <a href="report-detail.php?id=<?php echo $report['id']; ?>">
+                                                    <a href="viewMore.php?id=<?php echo $report['id']; ?>">
                                                         <img src="<?= htmlspecialchars($images[0]) ?>" 
                                                              class="card-img-top" 
                                                              alt="<?= htmlspecialchars($report['cat_name']) ?>"
@@ -204,7 +204,7 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                                         <strong>Last Seen:</strong> <?= htmlspecialchars($report['last_seen_date']) ?>
                                                     </p>
                                                     <div class="d-flex justify-content-between align-items-center">
-                                                        <a href="report-detail.php?id=<?php echo $report['id']; ?>" 
+                                                        <a href="viewMore.php?id=<?php echo $report['id']; ?>" 
                                                            class="btn btn-outline-primary btn-sm rounded-pill px-3">
                                                             <i class="fas fa-arrow-right me-1"></i> View Details
                                                         </a>
@@ -230,42 +230,5 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-    <script>
-    <?php if (isset($_SESSION['report_success'])): ?>
-        Swal.fire({
-            title: 'Success!',
-            text: 'Your report has been successfully submitted.',
-            icon: 'success',
-            confirmButtonColor: '#3085d6'
-        });
-        <?php unset($_SESSION['report_success']); ?>
-    <?php endif; ?>
-    <?php if (isset($_SESSION['edit_success'])): ?>
-        Swal.fire({
-            title: 'Success!',
-            text: 'Your report has been successfully updated.',
-            icon: 'success',
-            confirmButtonColor: '#3085d6'
-        });
-        <?php unset($_SESSION['edit_success']); ?>
-    <?php endif; ?>
-    </script>
-    <script>
-    function confirmDelete(reportId) {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = `delete-report.php?id=${reportId}`;	
-            }
-        });
-    }
-    </script>
 </body>
 </html> 
