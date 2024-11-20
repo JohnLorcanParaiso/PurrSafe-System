@@ -204,10 +204,10 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                                         <strong>Last Seen:</strong> <?= htmlspecialchars($report['last_seen_date']) ?>
                                                     </p>
                                                     <div class="d-flex justify-content-between align-items-center">
-                                                        <div class="btn-group">
-                                                            <a href="edit.php?id=<?php echo $report['id']; ?>" class="btn btn-sm btn-outline-secondary">Edit</a>
-                                                            <button onclick="confirmDelete(<?php echo $report['id']; ?>)" class="btn btn-sm btn-outline-danger">Delete</button>
-                                                        </div>
+                                                        <a href="report-detail.php?id=<?php echo $report['id']; ?>" 
+                                                           class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                                            <i class="fas fa-arrow-right me-1"></i> View Details
+                                                        </a>
                                                         <small class="text-muted">
                                                             <?php
                                                             $created = new DateTime($report['created_at']);
