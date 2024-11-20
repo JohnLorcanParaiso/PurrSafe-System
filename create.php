@@ -7,7 +7,6 @@ if (!$login->isLoggedIn()) {
     exit();
 }
 
-//Logout
 if (isset($_POST['action']) && $_POST['action'] === 'logout') {
     $login->logout();
     header('Location: login.php');
@@ -270,6 +269,11 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                         <div class="col-md-6">
                                             <label class="form-label">Last Seen Time (Approximate)</label>
                                             <input type="time" class="form-control" name="last_seen_time">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Last Seen Location</label>
+                                            <input type="text" class="form-control" name="last_seen_location" 
+                                                placeholder="Enter the location where the cat was last seen" required>
                                         </div>
                                     </div>
                                 </div>
