@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: Oct 28, 2024 at 08:40 PM
+-- Generation Time: Nov 21, 2024 at 06:17 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -24,80 +24,74 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `categories`
+-- Table structure for table `found_reports`
 --
 
-CREATE TABLE `categories` (
+CREATE TABLE `found_reports` (
   `id` int(11) NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `description` text DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `cats`
---
-
-CREATE TABLE `cats` (
-  `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `gender` enum('Male','Female') NOT NULL,
-  `age` int(11) NOT NULL,
-  `breed` varchar(50) NOT NULL,
-  `weight` float NOT NULL,
-  `height` float NOT NULL,
-  `last_seen` date NOT NULL,
-  `description` text DEFAULT NULL,
-  `owner_name` varchar(100) NOT NULL,
-  `owner_phone` varchar(15) NOT NULL,
-  `status` enum('Lost','Found') DEFAULT 'Lost',
-  `category_id` int(11) DEFAULT NULL,
+  `user_id` int(11) NOT NULL,
+  `report_id` int(11) NOT NULL,
+  `owner_notification` text NOT NULL,
+  `image_path` varchar(255) DEFAULT NULL,
+  `gps_location` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `images`
+-- Table structure for table `lost_reports`
 --
 
-CREATE TABLE `images` (
+CREATE TABLE `lost_reports` (
   `id` int(11) NOT NULL,
-  `cat_id` int(11) NOT NULL,
-  `image_url` varchar(255) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `cat_name` varchar(255) NOT NULL,
+  `breed` varchar(255) NOT NULL,
+  `gender` enum('male','female','unknown') NOT NULL,
+  `age` int(11) NOT NULL,
+  `color` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `last_seen_date` date NOT NULL,
+  `last_seen_time` time DEFAULT NULL,
+  `owner_name` varchar(255) NOT NULL,
+  `phone_number` varchar(20) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `last_seen_location` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `lost_reports`
+--
+
+INSERT INTO `lost_reports` (`id`, `user_id`, `cat_name`, `breed`, `gender`, `age`, `color`, `description`, `last_seen_date`, `last_seen_time`, `owner_name`, `phone_number`, `created_at`, `last_seen_location`) VALUES
+(1, 1, 'Gold', 'British Shorthair', 'male', 1, 'Yellow', 'Goofy, has a mark on the noes.', '2024-11-02', '15:37:00', 'Jaika Remina Madrid', '09189258041', '2024-11-19 07:38:09', NULL),
+(2, 1, 'Silver', 'British Shorthair', 'male', 1, 'Gray', 'Silent cat, prefers to be alone', '2024-11-16', '12:43:00', 'Jaika Remina Madrid', '09189258041', '2024-11-19 07:43:33', NULL),
+(3, 1, 'Blackie', 'American Shorthair', 'female', 2, 'Black', 'Sweet cat', '2024-06-04', '15:56:00', 'Jaika Remina Madrid', '09189258041', '2024-11-19 07:56:48', NULL),
+(6, 1, 'Whitney', 'Persian', 'female', 3, 'White', 'n/a', '2024-11-17', '08:48:00', 'Raymond Jerard Madrid', '09189258041', '2024-11-19 12:48:42', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `report_images`
+--
+
+CREATE TABLE `report_images` (
+  `id` int(11) NOT NULL,
+  `report_id` int(11) NOT NULL,
+  `image_path` varchar(255) NOT NULL,
   `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `logs`
+-- Dumping data for table `report_images`
 --
 
-CREATE TABLE `logs` (
-  `id` int(11) NOT NULL,
-  `admin_id` int(11) NOT NULL,
-  `action` varchar(50) NOT NULL,
-  `description` text DEFAULT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `reports`
---
-
-CREATE TABLE `reports` (
-  `id` int(11) NOT NULL,
-  `reporter_id` int(11) NOT NULL,
-  `cat_id` int(11) NOT NULL,
-  `location` varchar(100) NOT NULL,
-  `report_date` date NOT NULL,
-  `additional_info` text DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+INSERT INTO `report_images` (`id`, `report_id`, `image_path`, `uploaded_at`) VALUES
+(1, 1, 'uploads/673c4061881c5_6276326033263278916.jpg', '2024-11-19 07:38:09'),
+(2, 2, 'uploads/673c41a548b04_6276326033263278921.jpg', '2024-11-19 07:43:33'),
+(3, 3, 'uploads/673c44c03d107_blackcat-lede.jpeg', '2024-11-19 07:56:48'),
+(5, 6, 'uploads/673c892ae6736_Whitepersiancatoncouch-aba536ea9760403dac2042cc4c47144d.jpg', '2024-11-19 12:48:42');
 
 -- --------------------------------------------------------
 
@@ -107,127 +101,106 @@ CREATE TABLE `reports` (
 
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,
+  `fullname` varchar(255) NOT NULL,
   `username` varchar(50) NOT NULL,
+  `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `role` enum('user','admin') DEFAULT 'user',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `fullname`, `username`, `email`, `password`, `created_at`) VALUES
+(1, 'Jaika', 'jaikajeon', 'jaikajeon@gmail.com', '$2y$10$CrmkoWVkrwAHFmPln3n0e.uJ/qarpeHQVCIXuWBv.nVyebnkCS4pC', '2024-11-17 03:17:06'),
+(2, 'Jaika Remina Madrid', 'remwina', 'remwina@gmail.com', '$2y$10$HPVp4NCM/oyW1wbzyNSmHervpn4JMvoOtcg1uF/4geEHinMmJAfd2', '2024-11-17 09:45:29'),
+(3, 'John Lorcan Paraiso', 'Lorx', 'johnlorcparadise@gmail.com', '$2y$10$wHL1KYlrtAWz3H1TXH5vSu.1XQFk5B/yS748Z06P.bpjJry8v.Gka', '2024-11-21 15:02:22');
 
 --
 -- Indexes for dumped tables
 --
 
 --
--- Indexes for table `categories`
+-- Indexes for table `found_reports`
 --
-ALTER TABLE `categories`
+ALTER TABLE `found_reports`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `name` (`name`);
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `report_id` (`report_id`);
 
 --
--- Indexes for table `cats`
+-- Indexes for table `lost_reports`
 --
-ALTER TABLE `cats`
+ALTER TABLE `lost_reports`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `category_id` (`category_id`);
+  ADD KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `images`
+-- Indexes for table `report_images`
 --
-ALTER TABLE `images`
+ALTER TABLE `report_images`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `cat_id` (`cat_id`);
-
---
--- Indexes for table `logs`
---
-ALTER TABLE `logs`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `admin_id` (`admin_id`);
-
---
--- Indexes for table `reports`
---
-ALTER TABLE `reports`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `reporter_id` (`reporter_id`),
-  ADD KEY `cat_id` (`cat_id`);
+  ADD KEY `report_id` (`report_id`);
 
 --
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `username` (`username`);
+  ADD UNIQUE KEY `username` (`username`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT for table `categories`
+-- AUTO_INCREMENT for table `found_reports`
 --
-ALTER TABLE `categories`
+ALTER TABLE `found_reports`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `cats`
+-- AUTO_INCREMENT for table `lost_reports`
 --
-ALTER TABLE `cats`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `lost_reports`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- AUTO_INCREMENT for table `images`
+-- AUTO_INCREMENT for table `report_images`
 --
-ALTER TABLE `images`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `logs`
---
-ALTER TABLE `logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `reports`
---
-ALTER TABLE `reports`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `report_images`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables
 --
 
 --
--- Constraints for table `cats`
+-- Constraints for table `found_reports`
 --
-ALTER TABLE `cats`
-  ADD CONSTRAINT `cats_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL;
+ALTER TABLE `found_reports`
+  ADD CONSTRAINT `found_reports_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `found_reports_ibfk_2` FOREIGN KEY (`report_id`) REFERENCES `lost_reports` (`id`);
 
 --
--- Constraints for table `images`
+-- Constraints for table `lost_reports`
 --
-ALTER TABLE `images`
-  ADD CONSTRAINT `images_ibfk_1` FOREIGN KEY (`cat_id`) REFERENCES `cats` (`id`) ON DELETE CASCADE;
+ALTER TABLE `lost_reports`
+  ADD CONSTRAINT `lost_reports_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
--- Constraints for table `logs`
+-- Constraints for table `report_images`
 --
-ALTER TABLE `logs`
-  ADD CONSTRAINT `logs_ibfk_1` FOREIGN KEY (`admin_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `reports`
---
-ALTER TABLE `reports`
-  ADD CONSTRAINT `reports_ibfk_1` FOREIGN KEY (`reporter_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `reports_ibfk_2` FOREIGN KEY (`cat_id`) REFERENCES `cats` (`id`) ON DELETE CASCADE;
+ALTER TABLE `report_images`
+  ADD CONSTRAINT `report_images_ibfk_1` FOREIGN KEY (`report_id`) REFERENCES `lost_reports` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
