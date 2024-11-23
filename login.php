@@ -1,13 +1,11 @@
 <?php
 require_once 'userAuth.php';
 
-// If already logged in, redirect to dashboard
 if (isset($_SESSION['user_id'])) {
     header('Location: dashboard.php');
     exit();
 }
 
-// Process login
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $login = new Login();
     
