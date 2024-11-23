@@ -37,6 +37,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit();
         }
 
+        if (count(array_filter($_FILES['cat_images']['name'])) > 5) {
+            $_SESSION['report_error'] = "Please upload no more than 5 images.";
+            header('Location: create.php');
+            exit();
+        }
+
         $catName = $_POST['cat_name'];
         $breed = $_POST['breed'];
         $gender = $_POST['gender'];
