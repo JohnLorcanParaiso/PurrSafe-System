@@ -4,14 +4,12 @@ require_once 'userAuth.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $register = new Register();
     
-    // Validate inputs
     $fullname = trim($_POST['fullname']);
     $username = trim($_POST['username']);
     $email = trim($_POST['email']);
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
 
-    // Basic validation
     if (empty($fullname) || empty($username) || empty($email) || empty($password) || empty($confirm_password)) {
         $_SESSION['error'] = "All fields are required";
     } elseif ($password !== $confirm_password) {
@@ -19,7 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (strlen($password) < 6) {
         $_SESSION['error'] = "Password must be at least 6 characters long";
     } else {
-        // Attempt registration with corrected parameter order
         if ($register->registerUser($fullname, $username, $email, $password)) {
             $_SESSION['success'] = "Registration successful! Please login.";
             header("Location: login.php");
@@ -117,10 +114,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             text: "<?php echo htmlspecialchars($_SESSION['success']); ?>",
             icon: "success",
             confirmButtonColor: '#2196F3',
-            allowOutsideClick: false,  // Prevents clicking outside the alert
-            allowEscapeKey: false      // Prevents using escape key
+            allowOutsideClick: false, 
+            allowEscapeKey: false      
         }).then((result) => {
-            window.location.href = 'login.php';  // Always redirect to login
+            window.location.href = 'login.php';  
         });
     </script>
     <?php 
