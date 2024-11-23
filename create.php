@@ -298,8 +298,8 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                     <h6 class="fw-bold mb-3">Upload Images</h6>
                                     <div class="row g-3">
                                         <div class="col-12">
-                                            <input type="file" class="form-control" name="cat_images[]" multiple accept="image/*">
-                                            <div class="form-text">You can upload multiple images of your cat</div>
+                                            <input type="file" class="form-control" name="cat_images[]" multiple accept="image/*" max="5">                                   
+                                            <div class="form-text">Upload an image of your cat</div>
                                         </div>
                                     </div>
                                 </div>
