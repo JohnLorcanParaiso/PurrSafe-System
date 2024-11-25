@@ -63,10 +63,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if (!empty($_POST['owner_notification'])) {
+    if (!empty($_POST['owner_notification']) && !empty($_POST['founder_name']) && !empty($_POST['contact_number'])) {
         // Collect form data
         $owner_notification = trim($_POST['owner_notification']);
-        $gps_location = isset($_POST['gps_location']) ? trim($_POST['gps_location']) : null;
+        $founder_name = trim($_POST['founder_name']);
+        $contact_number = trim($_POST['contact_number']);
         $image_path = null;
 
         // Handle the image upload if provided
@@ -81,14 +82,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Insert data into the `found_reports` table if no errors
         if (empty($error_message)) {
             try {
-                $query = "INSERT INTO found_reports (user_id, report_id, owner_notification, image_path, gps_location) 
-                          VALUES (?, ?, ?, ?, ?)";
+                $query = "INSERT INTO found_reports (user_id, report_id, owner_notification, founder_name, contact_number, image_path) 
+                          VALUES (?, ?, ?, ?, ?, ?)";
                 $stmt = $db->pdo->prepare($query);
-                $stmt->execute([$_SESSION['user_id'], $cat_id, $owner_notification, $image_path, $gps_location]);
+                $stmt->execute([$_SESSION['user_id'], $cat_id, $owner_notification, $founder_name, $contact_number, $image_path]);
 
                 // Set success message and redirect to another page
                 $success_message = "Thank you for reporting! The owner has been notified.";
-                // Redirect to a success page (e.g., view.php or dashboard.php)
                 header("Location: view.php");
                 exit;
             } catch (Exception $e) {
@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     } else {
-        $error_message = "Owner notification is required.";
+        $error_message = "Owner notification, founder name, and contact number are required.";
     }
 }
 ?>
@@ -208,18 +208,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php else: ?>
                     <form method="POST" action="submit_found_cat.php?id=<?= htmlspecialchars($cat['id']) ?>" enctype="multipart/form-data">
                         <div class="mb-4">
-                            <label for="owner_notification" class="form-label">Notify Owner (how the cat will be returned or where to pick up):</label>
-                            <textarea id="owner_notification" name="owner_notification" class="custom-input form-control" required></textarea>
+                            <label for="owner_notification" class="form-label">Notify Owner (please provide details about the cat's condition and how to contact you):</label>
+                            <textarea id="owner_notification" name="owner_notification" class="custom-input form-control" required placeholder="Describe the condition of the cat, how the owner can contact you, and any other relevant information."></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="founder_name" class="form-label">Your Name:</label>
+                            <input type="text" id="founder_name" name="founder_name" class="custom-input form-control" required placeholder="Enter your name">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="contact_number" class="form-label">Contact Number:</label>
+                            <input type="text" id="contact_number" name="contact_number" class="custom-input form-control" required placeholder="Enter your contact number">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">How would you like to proceed?</label>
+                            <div>
+                                <button type="submit" name="action" value="return_cat" class="btn btn-success me-2">Return the Cat to Owner</button>
+                                <button type="submit" name="action" value="owner_claim" class="btn btn-warning">Owner to Claim the Cat</button>
+                            </div>
                         </div>
 
                         <div class="mb-4">
                             <label for="image" class="form-label">Upload Image of the Found Cat:</label>
                             <input type="file" id="image" name="image" class="custom-input form-control" accept="image/*" />
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="gps_location" class="form-label">GPS Location (optional):</label>
-                            <input type="text" id="gps_location" name="gps_location" class="custom-input form-control" placeholder="Enter GPS coordinates" />
                         </div>
 
                         <button type="submit" class="btn-custom btn btn-primary">Submit Report</button>
