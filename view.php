@@ -210,7 +210,7 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                                         </a>
                                                         <a href="submit_found_cat.php?id=<?php echo $report['id']; ?>" 
                                                             class="btn btn-outline-primary btn-sm rounded-pill px-3">
-                                                            <i class="fas fa-arrow-right me-1"></i> Submit Found
+                                                            <i class="fas fa-exclamation-circle me-1"></i> Submit Found
                                                         </a>
                                                         <small class="text-muted">
                                                             <?php
