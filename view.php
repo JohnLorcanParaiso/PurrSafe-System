@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 $sql = "SELECT r.*, GROUP_CONCAT(ri.image_path) as images 
-        FROM reports r 
+        FROM lost_reports r 
         LEFT JOIN report_images ri ON r.id = ri.report_id 
         GROUP BY r.id 
         ORDER BY r.created_at DESC";
@@ -117,7 +117,7 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
             <li class="nav-item">
                 <form method="POST">
                     <button type="submit" name="action" value="help" class="btn btn-link nav-link text-dark">
-                        <i class="fas fa-question-circle me-2"></i> Help
+                        <i class="fas fa-question-circle me-2"></i> Help and Support
                     </button>
                 </form>
             </li>
@@ -204,10 +204,16 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                                         <strong>Last Seen:</strong> <?= htmlspecialchars($report['last_seen_date']) ?>
                                                     </p>
                                                     <div class="d-flex justify-content-between align-items-center">
-                                                        <a href="viewMore.php?id=<?php echo $report['id']; ?>" 
-                                                           class="btn btn-outline-primary btn-sm rounded-pill px-3">
-                                                            <i class="fas fa-arrow-right me-1"></i> View Details
-                                                        </a>
+                                                        <div class="d-flex gap-1">
+                                                            <a href="viewMore.php?id=<?php echo $report['id']; ?>" 
+                                                               class="btn btn-outline-primary btn-sm rounded-pill px-2 py-1" style="font-size: 0.9rem;">
+                                                                <i class="fas fa-arrow-right"></i> View More
+                                                            </a>
+                                                            <a href="submit_found_cat.php?id=<?php echo $report['id']; ?>" 
+                                                                class="btn btn-outline-primary btn-sm rounded-pill px-2 py-1" style="font-size: 0.9rem;">
+                                                                <i class="fas fa-exclamation-circle"></i> Found
+                                                            </a>
+                                                        </div>
                                                         <small class="text-muted">
                                                             <?php
                                                             $created = new DateTime($report['created_at']);

@@ -12,18 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $action = isset($_POST['action']) ? $_POST['action'] : '';
     
     switch ($action) {
-        case 'updateProfile':
-            // Handle profile update logic here
-            break;
-            
-        case 'updatePassword':
-            // Handle password update logic here
-            break;
-            
-        case 'updateNotifications':
-            // Handle notification settings update logic here
-            break;
-            
         // Navigation cases
         case 'dashboard':
             header("Location: dashboard.php");
@@ -49,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 $username = $_SESSION['username'] ?? 'Guest';
 $fullname = $_SESSION['fullname'] ?? 'Guest User';
+$email = $_SESSION['email'] ?? '';
 ?>
 
 <!DOCTYPE html>
@@ -123,90 +112,155 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
 
     <div class="container-custom">
         <header class="header-container mb-4">
-            <h2 class="mb-0">Settings</h2>
+            <h2 class="mb-0">System Settings</h2>
         </header>
 
         <main class="main-content">
             <div class="row g-4">
+                <!-- Display Settings -->
                 <div class="col-md-6">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-white py-3">
-                            <h5 class="mb-0">Profile Settings</h5>
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-desktop me-2"></i>Display Settings</h5>
                         </div>
                         <div class="card-body">
-                            <form method="POST">
-                                <input type="hidden" name="action" value="updateProfile">
+                            <form method="POST" action="updateSettings.php">
                                 <div class="mb-3">
-                                    <label for="fullname" class="form-label">Full Name</label>
-                                    <input type="text" class="form-control" id="fullname" name="fullname" value="<?php echo htmlspecialchars($fullname); ?>">
+                                    <label class="form-label">Theme Mode</label>
+                                    <select class="form-select" name="themeMode">
+                                        <option value="light">Light</option>
+                                        <option value="dark">Dark</option>
+                                        <option value="auto">Auto (System)</option>
+                                    </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="email" name="email">
+                                    <label class="form-label">Accent Color</label>
+                                    <select class="form-select" name="accentColor">
+                                        <option value="blue">Blue</option>
+                                        <option value="green">Green</option>
+                                        <option value="purple">Purple</option>
+                                        <option value="orange">Orange</option>
+                                        <option value="red">Red</option>
+                                    </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="phone" class="form-label">Phone Number</label>
-                                    <input type="tel" class="form-control" id="phone" name="phone">
+                                    <label class="form-label">Font Family</label>
+                                    <select class="form-select" name="fontFamily">
+                                        <option value="poppins">Poppins</option>
+                                        <option value="roboto">Roboto</option>
+                                        <option value="opensans">Open Sans</option>
+                                        <option value="lato">Lato</option>
+                                    </select>
                                 </div>
-                                <button type="submit" class="btn btn-custom">Save Changes</button>
+                                <div class="mb-3">
+                                    <label class="form-label">Font Size</label>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input type="range" class="form-range" min="12" max="20" step="1" name="fontSize" id="fontSizeRange">
+                                        <span id="fontSizeValue">16px</span>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Animation Speed</label>
+                                    <select class="form-select" name="animationSpeed">
+                                        <option value="normal">Normal</option>
+                                        <option value="fast">Fast</option>
+                                        <option value="slow">Slow</option>
+                                        <option value="off">Off</option>
+                                    </select>
+                                </div>
+                                <button type="submit" name="action" value="updateDisplay" class="btn btn-primary">Save Display Settings</button>
                             </form>
                         </div>
                     </div>
                 </div>
 
+                <!-- User Information -->
                 <div class="col-md-6">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-white py-3">
-                            <h5 class="mb-0">Change Password</h5>
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-user-edit me-2"></i>User Information</h5>
                         </div>
                         <div class="card-body">
-                            <form method="POST">
-                                <input type="hidden" name="action" value="updatePassword">
+                            <form method="POST" action="updateSettings.php">
                                 <div class="mb-3">
-                                    <label for="currentPassword" class="form-label">Current Password</label>
-                                    <input type="password" class="form-control" id="currentPassword" name="currentPassword">
+                                    <label class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" name="fullName" value="<?php echo htmlspecialchars($fullname); ?>" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="newPassword" class="form-label">New Password</label>
-                                    <input type="password" class="form-control" id="newPassword" name="newPassword">
+                                    <label class="form-label">Username</label>
+                                    <input type="text" class="form-control" name="username" value="<?php echo htmlspecialchars($username); ?>" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="confirmPassword" class="form-label">Confirm New Password</label>
-                                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" name="email" value="<?php echo htmlspecialchars($email); ?>" required>
                                 </div>
-                                <button type="submit" class="btn btn-custom">Update Password</button>
+                                <div class="mb-3">
+                                    <label class="form-label">Current Password</label>
+                                    <input type="password" class="form-control" name="currentPassword" placeholder="Enter current password" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">New Password</label>
+                                    <input type="password" class="form-control" name="newPassword" placeholder="Leave blank to keep current password">
+                                </div>
+                                <button type="submit" name="action" value="updateUserInfo" class="btn btn-primary">Save User Information</button>
                             </form>
                         </div>
                     </div>
                 </div>
-                
-                <div class="col-12">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-white py-3">
-                            <h5 class="mb-0">Notification Settings</h5>
+
+                <!-- Update Password -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-key me-2"></i>Update Password</h5>
                         </div>
                         <div class="card-body">
-                            <form method="POST">
-                                <input type="hidden" name="action" value="updateNotifications">
+                            <form method="POST" action="updateSettings.php">
                                 <div class="mb-3">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="emailNotif" name="emailNotif">
-                                        <label class="form-check-label" for="emailNotif">Email Notifications</label>
-                                    </div>
+                                    <label class="form-label">Current Password</label>
+                                    <input type="password" class="form-control" name="currentPassword" placeholder="Enter current password" required>
                                 </div>
                                 <div class="mb-3">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="smsNotif" name="smsNotif">
-                                        <label class="form-check-label" for="smsNotif">SMS Notifications</label>
-                                    </div>
+                                    <label class="form-label">New Password</label>
+                                    <input type="password" class="form-control" name="newPassword" placeholder="Enter new password" required>
                                 </div>
                                 <div class="mb-3">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="newCatNotif" name="newCatNotif">
-                                        <label class="form-check-label" for="newCatNotif">New Cat Reports Notifications</label>
+                                    <label class="form-label">Confirm New Password</label>
+                                    <input type="password" class="form-control" name="confirmPassword" placeholder="Confirm new password" required>
+                                </div>
+                                <button type="submit" name="action" value="updatePassword" class="btn btn-primary">Update Password</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete Account -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Delete Account</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="updateSettings.php" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
+                                <div class="alert alert-primary" role="alert">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    Warning: This action is permanent and cannot be undone. All your data will be permanently deleted.
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Current Password</label>
+                                    <input type="password" class="form-control" name="deleteAccountPassword" placeholder="Enter your password to confirm" required>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="confirmDelete" id="confirmDelete" required>
+                                        <label class="form-check-label" for="confirmDelete">
+                                            I understand that this action is permanent and cannot be undone
+                                        </label>
                                     </div>
                                 </div>
-                                <button type="submit" class="btn btn-custom">Save Preferences</button>
+                                <button type="submit" name="action" value="deleteAccount" class="btn btn-primary">
+                                    <i class="fas fa-trash-alt me-2"></i>Delete Account
+                                </button>
                             </form>
                         </div>
                     </div>

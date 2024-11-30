@@ -4,7 +4,7 @@ class Database {
     private $host = "localhost";
     private $username = "root";
     private $password = "";
-    private $database = "login_purrsafe";
+    private $database = "purrsafe_db";
     protected $conn;
     public $pdo;
 

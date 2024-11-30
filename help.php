@@ -95,7 +95,7 @@ $username = $_SESSION['username'] ?? 'Guest';
             <li class="nav-item">
                 <form method="POST">
                     <button type="submit" name="action" value="help" class="btn btn-link nav-link text-dark active">
-                        <i class="fas fa-question-circle me-2"></i> Help
+                        <i class="fas fa-question-circle me-2"></i> Help and Support
                     </button>
                 </form>
             </li>
@@ -132,37 +132,12 @@ $username = $_SESSION['username'] ?? 'Guest';
 
         <main class="main-content">
             <div class="row g-4">
-                <div class="col-12">
-                    <div class="quick-help-buttons d-flex flex-wrap gap-3 mb-4">
-                        <button class="btn btn-outline-primary">
-                            <i class="fas fa-book me-2"></i>User Guide
-                        </button>
-                        <button class="btn btn-outline-primary">
-                            <i class="fas fa-video me-2"></i>Video Tutorials
-                        </button>
-                        <button class="btn btn-outline-primary">
-                            <i class="fas fa-exclamation-circle me-2"></i>Report an Issue
-                        </button>
-                        <button class="btn btn-outline-primary">
-                            <i class="fas fa-hands-helping me-2"></i>Community Support
-                        </button>
-                    </div>
-                </div>
-
                 <div class="col-md-8">
                     <div class="card shadow-sm">
                         <div class="card-header bg-white py-3">
                             <h5 class="mb-0">Frequently Asked Questions</h5>
                         </div>
                         <div class="card-body">
-                            <!-- Search FAQ -->
-                            <div class="mb-4">
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                    <input type="text" class="form-control" placeholder="Search FAQs...">
-                                </div>
-                            </div>
-
                             <div class="accordion" id="faqAccordion">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
@@ -224,17 +199,20 @@ $username = $_SESSION['username'] ?? 'Guest';
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
-                                            What should I do after finding my cat?
+                                            How to delete a report?
                                         </button>
                                     </h2>
                                     <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                                         <div class="accordion-body">
+                                            To delete a report:
                                             <ol>
-                                                <li>Mark your report as "Found" immediately</li>
-                                                <li>Update the listing with reunion details</li>
-                                                <li>Consider sharing your success story</li>
-                                                <li>Review and update your cat's profile information</li>
+                                                <li>Go to "View Reports" in the side menu</li>
+                                                <li>Find the report you want to delete</li>
+                                                <li>Click on the three dots (⋮) menu</li>
+                                                <li>Select "Delete Report"</li>
+                                                <li>Confirm the deletion when prompted</li>
                                             </ol>
+                                            <p class="text-muted small">Note: Deleted reports cannot be recovered.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -242,18 +220,21 @@ $username = $_SESSION['username'] ?? 'Guest';
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
-                                            How does the matching system work?
+                                            How to delete my profile?
                                         </button>
                                     </h2>
                                     <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                                         <div class="accordion-body">
-                                            Our system matches lost and found cats based on:
-                                            <ul>
-                                                <li>Geographic location and time of loss/finding</li>
-                                                <li>Physical characteristics and photos</li>
-                                                <li>Distinctive features and markings</li>
-                                                <li>AI-powered image recognition</li>
-                                            </ul>
+                                            To delete your profile:
+                                            <ol>
+                                                <li>Go to "Settings" in the side menu</li>
+                                                <li>Scroll down to "Account Management"</li>
+                                                <li>Click on "Delete Account"</li>
+                                                <li>Enter your password to confirm</li>
+                                                <li>Select reason for deletion (optional)</li>
+                                                <li>Click "Permanently Delete Account"</li>
+                                            </ol>
+                                            <p class="text-muted small">Warning: This action will permanently delete your account and all associated data.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -287,6 +268,26 @@ $username = $_SESSION['username'] ?? 'Guest';
                                         </ul>
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="resource-card p-3 border rounded">
+                                        <h6><i class="fas fa-first-aid me-2"></i>Injured Cat Guidelines</h6>
+                                        <ul class="list-unstyled mb-0">
+                                            <li><i class="fas fa-check-circle me-2 text-success"></i>Take to nearest vet immediately</li>
+                                            <li><i class="fas fa-check-circle me-2 text-success"></i>Handle with care and caution</li>
+                                            <li><i class="fas fa-check-circle me-2 text-success"></i>Keep cat warm and calm</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="resource-card p-3 border rounded">
+                                        <h6><i class="fas fa-camera me-2"></i>Photo Tips</h6>
+                                        <ul class="list-unstyled mb-0">
+                                            <li><i class="fas fa-check-circle me-2 text-success"></i>Take clear, well-lit photos</li>
+                                            <li><i class="fas fa-check-circle me-2 text-success"></i>Include multiple angles</li>
+                                            <li><i class="fas fa-check-circle me-2 text-success"></i>Highlight unique markings</li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -295,7 +296,7 @@ $username = $_SESSION['username'] ?? 'Guest';
                 <div class="col-md-4">
                     <div class="card shadow-sm mb-4">
                         <div class="card-header bg-white py-3">
-                            <h5 class="mb-0">Contact Developer</h5>
+                            <h5 class="mb-0">Contact Admin</h5>
                         </div>
                         <div class="card-body">
                             <div class="mb-4">
@@ -307,11 +308,6 @@ $username = $_SESSION['username'] ?? 'Guest';
                                 <p>+63 918 925 8041</p>
                                 <small class="text-muted">Available Mon-Fri, 9AM-5PM</small>
                             </div>
-                            <div>
-                                <h6><i class="fas fa-comments me-2"></i>Message Developer</h6>
-                                <button class="btn btn-custom w-100">Send a message</button>
-                            </div>
-
                             <form class="mt-4">
                                 <h6><i class="fas fa-ticket-alt me-2"></i>Create Support Ticket</h6>
                                 <div class="mb-3">

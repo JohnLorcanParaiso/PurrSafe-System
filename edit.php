@@ -14,7 +14,7 @@ if (!$login->isLoggedIn()) {
 $report_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 $sql = "SELECT r.*, GROUP_CONCAT(ri.image_path) as images 
-        FROM reports r 
+        FROM lost_reports r 
         LEFT JOIN report_images ri ON r.id = ri.report_id 
         WHERE r.id = ?
         GROUP BY r.id";
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
             'phone_number' => $report['phone_number']
         ];
 
-        $sql = "UPDATE reports SET 
+        $sql = "UPDATE lost_reports SET 
                 cat_name = ?,
                 breed = ?,
                 color = ?,

@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $phoneNumber = $_POST['phone_number'];
         $userId = $_SESSION['user_id'];
 
-        $sql = "INSERT INTO reports (
+        $sql = "INSERT INTO lost_reports (
             user_id, cat_name, breed, gender, age, color, 
             description, last_seen_date, last_seen_time, 
             owner_name, phone_number, created_at
