@@ -264,7 +264,8 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Last Seen Date</label>
-                                            <input type="date" class="form-control" name="last_seen_date" required>
+                                            <input type="date" class="form-control" name="last_seen_date" 
+                                                   max="<?= date('Y-m-d') ?>" required>
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Last Seen Time (Approximate)</label>
@@ -299,7 +300,7 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                     <div class="row g-3">
                                         <div class="col-12">
                                             <input type="file" class="form-control" name="cat_images[]" multiple accept="image/*" max="5">                                   
-                                            <div class="form-text">Upload an image of your cat</div>
+                                            <div class="form-text">Upload an image of your cat (Max: 5)</div>
                                         </div>
                                     </div>
                                 </div>

@@ -104,7 +104,7 @@ class DashboardData extends Database {
 
     public function getReportCount() {
         try {
-            $stmt = $this->conn->prepare("SELECT COUNT(*) as count FROM reports");
+            $stmt = $this->conn->prepare("SELECT COUNT(*) as count FROM lost_reports");
             $stmt->execute();
             $result = $stmt->get_result();
             return $result->fetch_assoc()['count'];
@@ -113,16 +113,6 @@ class DashboardData extends Database {
         }
     }
 
-    public function getProfileCount() {
-        try {
-            $stmt = $this->conn->prepare("SELECT COUNT(*) as count FROM users");
-            $stmt->execute();
-            $result = $stmt->get_result();
-            return $result->fetch_assoc()['count'];
-        } catch (Exception $e) {
-            return 0;
-        }
-    }
 }
 
 $dashboard = new DashboardData();
@@ -130,7 +120,6 @@ $result = $dashboard->getRecentReports();
 $lostCats = $dashboard->getLostCats();
 $cat_profile_count = $dashboard->getCatProfileCount();
 $report_count = $dashboard->getReportCount();
-$profile_count = $dashboard->getProfileCount();
 ?>
 
 <!DOCTYPE html>

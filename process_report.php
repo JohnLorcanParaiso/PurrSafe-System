@@ -51,24 +51,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $description = $_POST['description'];
         $lastSeenDate = $_POST['last_seen_date'];
         $lastSeenTime = $_POST['last_seen_time'] ?? null;
+        $lastSeenLocation = $_POST['last_seen_location'] ?? null;
         $ownerName = $_POST['owner_name'];
         $phoneNumber = $_POST['phone_number'];
         $userId = $_SESSION['user_id'];
 
         $sql = "INSERT INTO lost_reports (
             user_id, cat_name, breed, gender, age, color, 
-            description, last_seen_date, last_seen_time, 
+            description, last_seen_date, last_seen_time, last_seen_location, 
             owner_name, phone_number, created_at
         ) VALUES (
             ?, ?, ?, ?, ?, ?, 
-            ?, ?, ?, 
+            ?, ?, ?, ?, 
             ?, ?, NOW()
         )";
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             $userId, $catName, $breed, $gender, $age, $color,
-            $description, $lastSeenDate, $lastSeenTime,
+            $description, $lastSeenDate, $lastSeenTime, $lastSeenLocation,
             $ownerName, $phoneNumber
         ]);
         
