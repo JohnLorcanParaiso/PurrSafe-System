@@ -374,13 +374,22 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                 text: 'Please fill in all required fields and upload at least one image.',
                 icon: 'error',
                 confirmButtonColor: '#d33'
+            }).then(() => {
+                if (firstInvalidField) {
+                    firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
             });
-            
-            if (firstInvalidField) {
-                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
         } else {
-            this.submit();
+            // Show success alert before redirecting
+            Swal.fire({
+                title: 'Success!',
+                text: 'Your report has been submitted successfully.',
+                icon: 'success',
+                confirmButtonColor: '#3085d6'
+            }).then(() => {
+                // Redirect to view page after success alert
+                window.location.href = 'view.php';
+            });
         }
     });
     </script>

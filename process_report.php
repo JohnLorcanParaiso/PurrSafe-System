@@ -104,8 +104,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             throw new Exception("Failed to upload any images.");
         }
 
-        $_SESSION['report_success'] = true;
-        header('Location: view.php');
+        $_SESSION['report_success'] = 'Your report has been successfully submitted.';
+        header('Location: create.php');
         exit();
 
     } catch (Exception $e) {
