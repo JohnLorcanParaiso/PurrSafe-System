@@ -28,29 +28,29 @@ if (!$report || $report['user_id'] != $_SESSION['user_id']) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] === 'update') {
+    error_log("POST data: " . print_r($_POST, true));
+    error_log("Files data: " . print_r($_FILES, true));
     try {
+        error_log("Starting report update process for report_id: " . $report_id);
+        
+        if (!empty($_POST['phone_number']) && !preg_match("/^[\d\s\-\(\)\+\.]+$/", $_POST['phone_number'])) {
+            error_log("Phone number validation failed: " . $_POST['phone_number']);
+            throw new Exception("Invalid phone number format.");
+        }
+
         $required_fields = ['cat_name', 'breed', 'color', 'age', 'gender', 'last_seen_date', 
-                          'description', 'owner_name', 'phone_number'];
+                          'last_seen_location', 'description', 'owner_name', 'phone_number'];
         foreach ($required_fields as $field) {
-            if (empty($_POST[$field])) {
-                throw new Exception("Please fill in all required fields.");
+            if (!isset($_POST[$field]) || trim($_POST[$field]) === '') {
+                error_log("Missing required field: " . $field);
+                throw new Exception("Please fill in all required fields. Missing: " . $field);
             }
         }
 
-        $pdo->beginTransaction();
+        error_log("All required fields validated successfully");
 
-        $original_report = [
-            'cat_name' => $report['cat_name'],
-            'breed' => $report['breed'],
-            'color' => $report['color'],
-            'age' => $report['age'],
-            'gender' => $report['gender'],
-            'last_seen_date' => $report['last_seen_date'],
-            'last_seen_time' => $report['last_seen_time'],
-            'description' => $report['description'],
-            'owner_name' => $report['owner_name'],
-            'phone_number' => $report['phone_number']
-        ];
+        $pdo->beginTransaction();
+        error_log("Transaction started");
 
         $sql = "UPDATE lost_reports SET 
                 cat_name = ?,
@@ -60,14 +60,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
                 gender = ?,
                 last_seen_date = ?,
                 last_seen_time = ?,
+                last_seen_location = ?,
                 description = ?,
                 owner_name = ?,
-                phone_number = ?,
-                updated_at = NOW()
-                WHERE id = ?";
+                phone_number = ?
+                WHERE id = ? AND user_id = ?";
                 
         $stmt = $pdo->prepare($sql);
-        $success = $stmt->execute([
+        $params = [
             trim($_POST['cat_name']),
             trim($_POST['breed']),
             trim($_POST['color']),
@@ -75,92 +75,81 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
             $_POST['gender'],
             $_POST['last_seen_date'],
             $_POST['last_seen_time'] ?? null,
+            trim($_POST['last_seen_location']),
             trim($_POST['description']),
             trim($_POST['owner_name']),
             trim($_POST['phone_number']),
-            $report_id
-        ]);
-
-        if (!$success) {
-            throw new Exception("Failed to update report.");
-        }
-
-        $new_report = [
-            'cat_name' => trim($_POST['cat_name']),
-            'breed' => trim($_POST['breed']),
-            'color' => trim($_POST['color']),
-            'age' => trim($_POST['age']),
-            'gender' => $_POST['gender'],
-            'last_seen_date' => $_POST['last_seen_date'],
-            'last_seen_time' => $_POST['last_seen_time'] ?? null,
-            'description' => trim($_POST['description']),
-            'owner_name' => trim($_POST['owner_name']),
-            'phone_number' => trim($_POST['phone_number'])
+            $report_id,
+            $_SESSION['user_id']
         ];
+        
+        error_log("Executing update with params: " . print_r($params, true));
+        $stmt->execute($params);
 
-        $changes = [];
-        foreach ($new_report as $field => $new_value) {
-            if ($original_report[$field] != $new_value) {
-                $sql = "INSERT INTO report_updates 
-                        (report_id, field_name, old_value, new_value, updated_by, updated_at) 
-                        VALUES (?, ?, ?, ?, ?, NOW())";
+        // Handle image deletions
+        if (!empty($_POST['delete_images'])) {
+            $deleteImages = explode(',', $_POST['delete_images']);
+            foreach ($deleteImages as $imagePath) {
+                // Delete image file from server
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
+                // Delete image path from database
+                $sql = "DELETE FROM report_images WHERE report_id = ? AND image_path = ?";
                 $stmt = $pdo->prepare($sql);
-                $stmt->execute([
-                    $report_id,
-                    $field,
-                    $original_report[$field],
-                    $new_value,
-                    $_SESSION['user_id']
-                ]);
-
-                $changes[$field] = [
-                    'old' => $original_report[$field],
-                    'new' => $new_value
-                ];
+                $stmt->execute([$report_id, $imagePath]);
+                error_log("Deleted image: " . $imagePath);
             }
         }
 
+        // Handle new image uploads
         if (!empty($_FILES['new_images']['name'][0])) {
             $uploadDir = 'uploads/';
-            $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
-            $max_size = 5 * 1024 * 1024; 
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
 
-            foreach ($_FILES['new_images']['tmp_name'] as $key => $tmp_name) {
- 
-                if (!in_array($_FILES['new_images']['type'][$key], $allowed_types)) {
-                    throw new Exception("Invalid file type. Only JPG, PNG, and GIF files are allowed.");
-                }
-                if ($_FILES['new_images']['size'][$key] > $max_size) {
-                    throw new Exception("File size too large. Maximum size is 5MB.");
-                }
-
-                $fileName = uniqid() . '_' . $_FILES['new_images']['name'][$key];
-                if (move_uploaded_file($tmp_name, $uploadDir . $fileName)) {
-                    $sql = "INSERT INTO report_images (report_id, image_path) VALUES (?, ?)";
-                    $stmt = $pdo->prepare($sql);
-                    $stmt->execute([$report_id, $uploadDir . $fileName]);
-                } else {
-                    throw new Exception("Error uploading file.");
+            foreach ($_FILES['new_images']['tmp_name'] as $key => $tmpName) {
+                if ($_FILES['new_images']['error'][$key] === UPLOAD_ERR_OK) {
+                    $fileName = uniqid() . '_' . basename($_FILES['new_images']['name'][$key]);
+                    $targetFilePath = $uploadDir . $fileName;
+                    
+                    if (move_uploaded_file($tmpName, $targetFilePath)) {
+                        // Insert new image path into report_images table
+                        $sql = "INSERT INTO report_images (report_id, image_path) VALUES (?, ?)";
+                        $stmt = $pdo->prepare($sql);
+                        $stmt->execute([$report_id, $targetFilePath]);
+                        error_log("Uploaded new image: " . $targetFilePath);
+                    } else {
+                        throw new Exception("Failed to upload image: " . $fileName);
+                    }
                 }
             }
         }
 
         $pdo->commit();
+        error_log("Transaction committed successfully");
 
         $_SESSION['success'] = true;
         $_SESSION['success_message'] = "Report successfully updated!";
         $_SESSION['report_changes'] = $changes;
         $_SESSION['report_id'] = $report_id;
 
-        header('Location: view.php');
+        // Redirect back to the same page to show the alert
+        header('Location: edit.php?id=' . $report_id . '&success=1');
         exit();
 
     } catch (Exception $e) {
-        $pdo->rollBack();
+        error_log("Error in update process: " . $e->getMessage());
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+            error_log("Transaction rolled back");
+        }
         
+        $_SESSION['error'] = true;
         $_SESSION['error_message'] = $e->getMessage();
         
-        header('Location: edit.php?id=' . $report_id);
+        header('Location: edit.php?id=' . $report_id . '&error=1');
         exit();
     }
 }
@@ -377,6 +366,12 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                             <input type="time" class="form-control" name="last_seen_time" 
                                                    value="<?= htmlspecialchars($report['last_seen_time'] ?? '') ?>">
                                         </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Last Seen Location</label>
+                                            <input type="text" class="form-control" name="last_seen_location" 
+                                                   value="<?= htmlspecialchars($report['last_seen_location'] ?? '') ?>" 
+                                                   placeholder="Enter the location where the cat was last seen" required>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -406,8 +401,12 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                         foreach ($images as $image): 
                                             if (!empty($image)):
                                         ?>
-                                            <div class="col-md-3 mb-2">
+                                            <div class="col-md-3 mb-2 position-relative">
                                                 <img src="<?= htmlspecialchars($image) ?>" class="img-thumbnail" alt="Report Image">
+                                                <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" 
+                                                        onclick="deleteImage('<?= htmlspecialchars($image) ?>')">
+                                                    &times;
+                                                </button>
                                             </div>
                                         <?php 
                                             endif;
@@ -415,13 +414,14 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                         ?>
                                     </div>
                                 </div>
+                                <input type="hidden" name="delete_images" id="delete_images" value="">
 
                                 <div class="mb-4">
                                     <h6 class="fw-bold mb-3">Upload New Images</h6>
                                     <div class="row g-3">
                                         <div class="col-12">
-                                            <input type="file" class="form-control" name="new_images[]" multiple accept="image/*">
-                                            <div class="form-text">You can upload multiple new images of your cat</div>
+                                            <input type="file" class="form-control" name="new_images[]" multiple accept="image/*" max="5">
+                                            <div class="form-text">You can upload multiple new images of your cat (Max: 5)</div>
                                         </div>
                                     </div>
                                 </div>
@@ -438,46 +438,66 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
         </main>
     </div>
 
-    <?php if (isset($error)): ?>
-    <script>
-        Swal.fire({
-            title: 'Error!',
-            text: '<?= htmlspecialchars($error) ?>',
-            icon: 'error',
-            confirmButtonColor: '#3085d6'
-        });
-    </script>
+    <?php if (isset($_SESSION['error']) && $_SESSION['error']): ?>
+        <script>
+            Swal.fire({
+                title: 'Error!',
+                text: '<?= htmlspecialchars($_SESSION['error_message']) ?>',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc3545'
+            });
+        </script>
+        <?php 
+        unset($_SESSION['error']);
+        unset($_SESSION['error_message']);
+        ?>
     <?php endif; ?>
 
-    <?php if (isset($_GET['success']) && $_SESSION['report_status'] === 'success'): ?>
-    <script>
-        Swal.fire({
-            title: 'Success!',
-            html: `
-                <p><?= $_SESSION['report_message'] ?></p>
-                <div class="mt-3">
-                    <p><strong>Cat Name:</strong> <?= htmlspecialchars($_SESSION['report_details']['cat_name']) ?></p>
-                    <p><strong>Breed:</strong> <?= htmlspecialchars($_SESSION['report_details']['breed']) ?></p>
-                    <p><strong>Last Seen Date:</strong> <?= htmlspecialchars($_SESSION['report_details']['last_seen_date']) ?></p>
-                </div>
-            `,
-            icon: 'success',
-            confirmButtonText: 'View Reports',
-            confirmButtonColor: '#28a745'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = 'view.php';
-            }
-        });
-    </script>
-    <?php 
-        unset($_SESSION['report_status']);
-        unset($_SESSION['report_message']);
-        unset($_SESSION['report_details']);
-    endif; 
-    ?>
+    <?php if (isset($_SESSION['success']) && $_SESSION['success']): ?>
+        <script>
+            Swal.fire({
+                title: 'Success!',
+                text: '<?= htmlspecialchars($_SESSION['success_message']) ?>',
+                icon: 'success',
+                confirmButtonText: 'View Reports',
+                confirmButtonColor: '#28a745'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'view.php';
+                }
+            });
+        </script>
+        <?php 
+        unset($_SESSION['success']);
+        unset($_SESSION['success_message']);
+        ?>
+    <?php endif; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <script>
+        function deleteImage(imagePath) {
+            // Add confirmation dialog
+            if (confirm('Are you sure you want to delete this image?')) {
+                // Find and remove the image container from view
+                const imageElement = event.target.closest('.col-md-3');
+                imageElement.style.opacity = '0.5';  // First fade the image
+                setTimeout(() => {
+                    imageElement.remove();  // Then remove the element
+                }, 300);  // After 300ms transition
+                
+                // Update hidden input with deleted image path
+                const deleteImagesInput = document.getElementById('delete_images');
+                let deleteImages = deleteImagesInput.value ? deleteImagesInput.value.split(',') : [];
+                
+                if (!deleteImages.includes(imagePath)) {
+                    deleteImages.push(imagePath);
+                }
+                
+                deleteImagesInput.value = deleteImages.join(',');
+            }
+        }
+    </script>
 </body>
 </html> 
