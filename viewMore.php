@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 $sql = "SELECT r.*, GROUP_CONCAT(ri.image_path) as images, 
         u.fullname as reporter_name, u.email as reporter_email
-        FROM reports r 
+        FROM lost_reports r 
         LEFT JOIN report_images ri ON r.id = ri.report_id 
         LEFT JOIN users u ON r.user_id = u.id
         WHERE r.id = ?
@@ -63,7 +63,7 @@ $report = $stmt->fetch(PDO::FETCH_ASSOC);
 $images = $report['images'] ? explode(',', $report['images']) : [];
 
 
-date_default_timezone_set('Asia/Singapore'); 
+date_default_timezone_set('Asia/Manila'); 
 ?>
 
 <!DOCTYPE html>
@@ -216,14 +216,14 @@ date_default_timezone_set('Asia/Singapore');
 
                         <div class="mb-4">
                             <h5 class="text-primary mb-3">
-                                <i class="fas fa-clock me-2"></i>Last Seen Date and Time
+                                <i class="fas fa-clock me-2"></i>Last Seen Information
                             </h5>
                             <div class="card border-0 bg-light">
                                 <div class="card-body">
                                     <div class="row g-3">
                                         <div class="col-12">
                                             <p><strong>Date:</strong><br>
-                                            <?= htmlspecialchars($report['last_seen_date']) ?></p>
+                                            <?= date('Y-m-d', strtotime($report['last_seen_date'])) ?></p>
                                         </div>
                                         <div class="col-12">
                                             <p><strong>Time:</strong><br>
