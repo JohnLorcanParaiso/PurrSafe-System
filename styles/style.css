@@ -187,3 +187,6 @@ a.dashboard-blue:hover {
     box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25) !important;
 }
 
+.notification-dropdown {
+    width: 300px; /* Adjust the width as needed */
+}
