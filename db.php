@@ -46,6 +46,21 @@ class Database {
         $stmt->execute();
         return $stmt->get_result()->fetch_assoc();
     }
+
+    public function getRecentReports($limit = 5) {
+        $stmt = $this->pdo->prepare("
+            SELECT lr.id, lr.user_id, lr.cat_name, lr.breed, lr.gender, lr.age, lr.color, lr.description, 
+                   lr.last_seen_date, lr.last_seen_time, lr.owner_name, lr.phone_number, lr.created_at, 
+                   lr.last_seen_location, ri.image_path 
+            FROM lost_reports lr
+            LEFT JOIN report_images ri ON lr.id = ri.report_id
+            ORDER BY lr.created_at DESC 
+            LIMIT ?
+        ");
+        $stmt->bindParam(1, $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }
 
 $db = new Database();
