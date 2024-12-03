@@ -274,16 +274,7 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                     </div>
                 </form>
                 <div class="d-flex align-items-center gap-3">
-                    <div class="dropdown">
-                        <button class="btn btn-outline-secondary position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="images/notifications.png" alt="notifications" style="width: 20px;">
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                3
-                            </span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationDropdown">
-                        </ul>
-                    </div>
+                    <?php include 'notifications.php'; ?>
                     <form method="POST" class="m-0">
                         <button type="submit" name="action" value="profile" class="btn btn-outline-secondary rounded-circle p-2">
                             <img src="images/user.png" alt="user profile" style="width: 28px; height: 28px;">

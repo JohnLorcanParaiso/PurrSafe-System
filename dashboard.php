@@ -203,65 +203,7 @@ $report_count = $dashboard->getReportCount();
                     </div>
                 </form>
                 <div class="d-flex align-items-center gap-3">
-        
-                    <div class="dropdown">
-                        <button class="btn btn-outline-secondary position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="images/notifications.png" alt="notifications" style="width: 20px;">
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                3
-                                <span class="visually-hidden">unread notifications</span>
-                            </span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationDropdown">
-                            <li><h6 class="dropdown-header">Notifications</h6></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item notification-item" href="#">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-shrink-0">
-                                            <img src="images/notifications.png" alt="notification" class="notification-icon">
-                                        </div>
-                                        <div class="flex-grow-1 ms-2">
-                                            <p class="notification-text">New cat reported missing in your area</p>
-                                            <small class="notification-time">3 minutes ago</small>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item notification-item" href="#">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-shrink-0">
-                                            <img src="images/notifications.png" alt="notification" class="notification-icon">
-                                        </div>
-                                        <div class="flex-grow-1 ms-2">
-                                            <p class="notification-text">Your report has been updated</p>
-                                            <small class="notification-time">1 hour ago</small>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item notification-item" href="#">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-shrink-0">
-                                            <img src="images/notifications.png" alt="notification" class="notification-icon">
-                                        </div>
-                                        <div class="flex-grow-1 ms-2">
-                                            <p class="notification-text">New match found for your lost cat</p>
-                                            <small class="notification-time">2 hours ago</small>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item text-center view-all" href="#">View All Notifications</a>
-                            </li>
-                        </ul>
-                    </div>
+                    <?php include 'notifications.php'; ?>
                     <form method="POST" class="m-0">
                         <button type="submit" name="action" value="profile" class="btn btn-outline-secondary rounded-circle p-2">
                             <img src="images/user.png" alt="user profile" style="width: 28px; height: 28px;">
