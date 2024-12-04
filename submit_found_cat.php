@@ -2,38 +2,28 @@
 require_once 'userAuth.php';
 require_once 'db.php';
 
-// Start session only if it's not already started
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
 }
 
-// Get the cat's ID from the URL parameter
 $cat_id = isset($_GET['id']) ? $_GET['id'] : null;
 $cat = null;
 
 if ($cat_id) {
     $query = "SELECT * FROM lost_reports WHERE id = ?";
-    $stmt = $db->pdo->prepare($query); // Use PDO for prepared statements
+    $stmt = $db->pdo->prepare($query);
     $stmt->execute([$cat_id]);
     $cat = $stmt->fetch();
 }
 
-// Initialize variables for message display
 $error_message = "";
 $success_message = "";
 
-// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Debugging: Output the received POST data
-    error_log(print_r($_POST, true)); // Log POST data for debugging
+    error_log(print_r($_POST, true));
 
-    // Handle the action
+    // Handle the navigation actions first
     if (isset($_POST['action'])) {
         switch ($_POST['action']) {
             case 'dashboard':
@@ -66,14 +56,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if (!empty($_POST['owner_notification']) && !empty($_POST['founder_name']) && !empty($_POST['contact_number'])) {
+    // Check if all required fields are filled
+    if (!empty($_POST['owner_notification']) && !empty($_POST['contact_number'])) {
         // Collect form data
         $owner_notification = trim($_POST['owner_notification']);
-        $founder_name = trim($_POST['founder_name']);
+        $founder_name = $_SESSION['fullname'];
         $contact_number = trim($_POST['contact_number']);
         $image_path = null;
 
-        // Handle the image upload if provided
+        // Handle file upload
         if (!empty($_FILES['image']['name'])) {
             $target_dir = "uploads/";
             $image_path = $target_dir . basename($_FILES['image']['name']);
@@ -82,24 +73,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Insert data into the `found_reports` table if no errors
+        // If no errors, insert into database
         if (empty($error_message)) {
             try {
+                // Begin transaction
+                $db->pdo->beginTransaction();
+
+                // Insert found report
                 $query = "INSERT INTO found_reports (user_id, report_id, owner_notification, founder_name, contact_number, image_path) 
                           VALUES (?, ?, ?, ?, ?, ?)";
                 $stmt = $db->pdo->prepare($query);
                 $stmt->execute([$_SESSION['user_id'], $cat_id, $owner_notification, $founder_name, $contact_number, $image_path]);
 
-                // Set success message and redirect to another page
-                $success_message = "Thank you for reporting! The owner has been notified.";
-                header("Location: view.php");
+                // Update the lost_reports status to 'found'
+                $updateQuery = "UPDATE lost_reports SET status = 'found' WHERE id = ?";
+                $updateStmt = $db->pdo->prepare($updateQuery);
+                $updateStmt->execute([$cat_id]);
+
+                // Get the owner's user_id from lost_reports
+                $ownerQuery = "SELECT user_id FROM lost_reports WHERE id = ?";
+                $ownerStmt = $db->pdo->prepare($ownerQuery);
+                $ownerStmt->execute([$cat_id]);
+                $owner = $ownerStmt->fetch();
+
+                // Create notification for the cat owner
+                $notificationQuery = "INSERT INTO notifications (recipient_id, sender_id, message, created_at, is_read) 
+                                    VALUES (?, ?, ?, NOW(), 0)";
+                $notificationStmt = $db->pdo->prepare($notificationQuery);
+                $notificationStmt->execute([
+                    $owner['user_id'],
+                    $_SESSION['user_id'],
+                    "Someone has found your cat! Check the found reports for details."
+                ]);
+
+                $db->pdo->commit();
+                ?>
+                <script>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Thank you for reporting! The owner has been notified.',
+                        showConfirmButton: true
+                    }).then((result) => {
+                        window.location.href = 'view.php?success=found';
+                    });
+                </script>
+                <?php
                 exit;
             } catch (Exception $e) {
+                $db->pdo->rollBack();
                 $error_message = "An error occurred while submitting the report. Please try again.";
             }
         }
     } else {
-        $error_message = "Owner notification, founder name, and contact number are required.";
+        $error_message = "Owner notification and contact number are required.";
     }
 }
 ?>
@@ -114,9 +141,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="styles/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-light">
-    <!-- Side Menu -->
     <div class="side-menu">
         <div class="text-center">
             <img src="images/logo.png" class="logo" style="width: 150px; height: 150px; margin: 20px auto; display: block;">
@@ -153,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <li class="nav-item">
                 <form method="POST">
                     <button type="submit" name="action" value="help" class="btn btn-link nav-link text-dark">
-                        <i class="fas fa-question-circle me-2"></i> Help
+                        <i class="fas fa-question-circle me-2"></i> Help and Support
                     </button>
                 </form>
             </li>
@@ -174,38 +201,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </ul>
     </div>
 
-    <!-- Main Content Area -->
     <div class="container-custom">
-        <header class="header-container mb-4">
-            <div class="d-flex justify-content-between align-items-center gap-3">
-                <form method="POST" class="d-flex flex-grow-1">
-                    <div class="input-group">
-                        <input type="text" name="search" class="form-control" placeholder="Search..">
-                        <button type="submit" name="action" value="search" class="btn btn-outline-secondary">
-                            <img src="images/search.png" alt="search" style="width: 20px;">
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </header>
-
         <div class="mb-4">
             <a href="view.php" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
                 <i class="fas fa-arrow-left me-2"></i>Back to Reports
             </a>
         </div>
 
-        <!-- Submission Form -->
         <div class="card shadow">
             <div class="card-body p-4">
                 <h4 class="card-title mb-4">Submit Found Cat</h4>
 
-                <!-- Display error message if present -->
                 <?php if (!empty($error_message)): ?>
                     <div class="alert alert-danger"><?= htmlspecialchars($error_message) ?></div>
                 <?php endif; ?>
 
-                <!-- Display success message if present -->
                 <?php if (!empty($success_message)): ?>
                     <div class="alert alert-success"><?= htmlspecialchars($success_message) ?></div>
                 <?php else: ?>
@@ -216,8 +226,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <div class="mb-4">
-                            <label for="founder_name" class="form-label">Your Name:</label>
-                            <input type="text" id="founder_name" name="founder_name" class="custom-input form-control" required placeholder="Enter your name">
+                            <label class="form-label">Your Name:</label>
+                            <input type="text" class="custom-input form-control" value="<?= htmlspecialchars($_SESSION['fullname']) ?>" disabled>
+                            <input type="hidden" name="founder_name" value="<?= htmlspecialchars($_SESSION['fullname']) ?>">
                         </div>
 
                         <div class="mb-4">
@@ -251,7 +262,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <!-- Include Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
 </body>
