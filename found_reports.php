@@ -51,37 +51,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         case 'profile':
             header("Location: profile.php");
             exit();
-            
-        case 'view_report':
-            $report_id = isset($_POST['report_id']) ? $_POST['report_id'] : '';
-            header("Location: view_report.php?id=" . urlencode($report_id));
-            exit();
-            
-        case 'view_lost_cat':
-            $lost_cat_id = isset($_POST['lost_cat_id']) ? $_POST['lost_cat_id'] : '';
-            header("Location: view_lost_cat.php?id=" . urlencode($lost_cat_id));
-            exit();
-            
-        case 'view_lost':
-            header("Location: lost_cats.php");
-            exit();
     }
 }
 
-$username = $_SESSION['username'] ?? 'Guest';
-$fullname = $_SESSION['fullname'] ?? 'Guest User';
-
-// Get found reports only for the current user (either as owner or finder)
-$sql = "SELECT fr.*, lr.cat_name, lr.breed, u.fullname as founder_name
+// Get found reports based on whether an ID was passed
+$sql = "SELECT fr.*, lr.cat_name, lr.breed, u.fullname as founder_name 
         FROM found_reports fr
         JOIN lost_reports lr ON fr.report_id = lr.id
         JOIN users u ON fr.user_id = u.id
-        WHERE lr.user_id = ? OR fr.user_id = ?  -- Show reports where user is either owner or finder
-        ORDER BY fr.created_at DESC";
-$stmt = $pdo->prepare($sql);
-$stmt->execute([$_SESSION['user_id'], $_SESSION['user_id']]);
-$foundReports = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        WHERE (lr.user_id = ? OR fr.user_id = ?)";  // Base conditions
 
+// Add ID filter if coming from notifications
+if (isset($_GET['id'])) {
+    $sql .= " AND fr.id = ?";
+}
+
+$sql .= " ORDER BY fr.created_at DESC";
+
+$stmt = $pdo->prepare($sql);
+
+// Execute with or without the ID parameter
+if (isset($_GET['id'])) {
+    $stmt->execute([$_SESSION['user_id'], $_SESSION['user_id'], $_GET['id']]);
+} else {
+    $stmt->execute([$_SESSION['user_id'], $_SESSION['user_id']]);
+}
+
+$found_reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -152,120 +148,108 @@ $foundReports = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </li>
         </ul>
     </div>
+
     <div class="container-custom">
-        <header class="header-container mb-4">
-            <div class="d-flex justify-content-between align-items-center gap-3">
-                <h2>Found Cat Reports</h2>
-                <div class="d-flex align-items-center gap-3">
-                    <?php include 'notifications.php'; ?>
-                    <form method="POST" class="m-0">
-                        <button type="submit" name="action" value="profile" class="btn rounded-circle p-0" style="width: 50px; height: 50px; overflow: hidden; border: none;">
-                            <img src="images/cat-user.png" alt="user profile" style="width: 100%; height: 100%; object-fit: cover;">
-                        </button>
-                    </form>
-                </div>
+        <div class="mb-4">
+            <a href="view.php" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                <i class="fas fa-arrow-left me-2"></i>Back to Reports
+            </a>
+        </div>
+
+        <?php foreach ($found_reports as $report): ?>
+        <div class="card shadow border-primary border-2">
+            <div class="card-header bg-primary text-white py-3">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-search me-2"></i>Found Cat Report
+                </h4>
             </div>
-        </header>
-
-        <main class="main-content">
-            <div class="row justify-content-center">
-                <div class="col-12 col-lg-8">
-                    <?php if (empty($foundReports)): ?>
-                        <div class="text-center">
-                            <p class="lead">No found cat reports yet.</p>
+            <div class="card-body p-4">
+                <div class="row g-4">
+                    <div class="col-md-6 order-md-2">
+                        <div class="mb-4">
+                            <h5 class="text-primary mb-3 border-bottom pb-2">
+                                <i class="fas fa-camera me-2"></i>Found Cat Photo
+                            </h5>
+                            <div class="card border-0">
+                                <div class="card-body p-0">
+                                    <?php if ($report['image_path']): ?>
+                                        <div class="position-relative">
+                                            <img src="<?= htmlspecialchars($report['image_path']) ?>" 
+                                                 class="img-fluid rounded shadow-sm" 
+                                                 alt="Found cat image"
+                                                 style="width: 100%; height: 400px; object-fit: cover;">
+                                            <div class="position-absolute bottom-0 start-0 w-100 p-3 bg-dark bg-opacity-50 text-white">
+                                                <small><i class="far fa-clock me-1"></i>Photo taken: <?= (new DateTime($report['created_at']))->format('M j, Y g:i A') ?></small>
+                                            </div>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="text-center p-4 border rounded" style="height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                            <i class="fas fa-image fa-3x text-muted mb-3"></i>
+                                            <p class="text-muted">No photo available</p>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                         </div>
-                    <?php else: ?>
-                        <div class="timeline">
-                            <?php foreach ($foundReports as $report): ?>
-                                <div class="timeline-item">
-                                    <div class="timeline-marker"></div>
-                                    <div class="card shadow-sm mb-4">
-                                        <div class="row g-0">
-                                            <?php if ($report['image_path']): ?>
-                                                <div class="col-md-4">
-                                                    <img src="<?php echo htmlspecialchars($report['image_path']); ?>" 
-                                                         class="img-fluid rounded-start h-100"
-                                                         style="object-fit: cover; cursor: pointer;"
-                                                         alt="Found cat image"
-                                                         data-bs-toggle="modal"
-                                                         data-bs-target="#imageModal<?php echo $report['id']; ?>">
-                                                </div>
-                                            <?php endif; ?>
-                                            <div class="col-md-<?php echo $report['image_path'] ? '8' : '12'; ?>">
-                                                <div class="card-body">
-                                                    <div class="d-flex justify-content-between align-items-start">
-                                                        <div>
-                                                            <h4 class="card-title"><?php echo htmlspecialchars($report['cat_name']); ?></h4>
-                                                            <p class="text-muted small">
-                                                                <?php 
-                                                                    $date = new DateTime($report['created_at']);
-                                                                    echo $date->format('M j, Y g:i A');
-                                                                ?>
-                                                            </p>
-                                                        </div>
-                                                        <?php 
-                                                        if ($report['user_id'] == $_SESSION['user_id']) {
-                                                            echo '<span class="badge bg-success">Finder</span>';
-                                                        } else {
-                                                            echo '<span class="badge bg-primary">Owner</span>';
-                                                        }
-                                                        ?>
-                                                    </div>
-                                                    
-                                                    <div class="report-details mt-3">
-                                                        <div class="row">
-                                                            <div class="col-sm-6">
-                                                                <p><i class="fas fa-paw me-2"></i><?php echo htmlspecialchars($report['breed']); ?></p>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <p><i class="fas fa-user me-2"></i><?php echo htmlspecialchars($report['founder_name']); ?></p>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <p><i class="fas fa-phone me-2"></i><?php echo htmlspecialchars($report['contact_number']); ?></p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                    </div>
 
-                                                    <div class="message-container mt-3 p-3 bg-light rounded">
-                                                        <h6 class="message-header">
-                                                            <i class="fas fa-comment-alt me-2"></i>Message:
-                                                        </h6>
-                                                        <div class="message-content">
-                                                            <?php echo nl2br(htmlspecialchars($report['owner_notification'])); ?>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                    <div class="col-md-6 order-md-1">
+                        <div class="mb-4">
+                            <h5 class="text-primary mb-3 border-bottom pb-2">
+                                <i class="fas fa-cat me-2"></i>Cat Details
+                            </h5>
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <p><strong>Cat Name:</strong><br>
+                                            <span class="text-primary"><?= htmlspecialchars($report['cat_name']) ?></span></p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Breed:</strong><br>
+                                            <span class="text-primary"><?= htmlspecialchars($report['breed']) ?></span></p>
+                                        </div>
+                                        <div class="col-12">
+                                            <p><strong>Message to Owner:</strong><br>
+                                            <span class="text-muted"><?= nl2br(htmlspecialchars($report['owner_notification'])) ?></span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="text-primary mb-3 border-bottom pb-2">
+                                <i class="fas fa-user me-2"></i>Finder Information
+                            </h5>
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <div class="alert alert-info">
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <p class="mb-1"><i class="fas fa-user-circle me-2"></i><strong>Found By:</strong>
+                                                <?= htmlspecialchars($report['founder_name']) ?></p>
+                                            </div>
+                                            <div class="col-12">
+                                                <p class="mb-0"><i class="fas fa-phone me-2"></i><strong>Contact:</strong>
+                                                <?= htmlspecialchars($report['contact_number']) ?></p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Image Modal -->
-                                <?php if ($report['image_path']): ?>
-                                    <div class="modal fade" id="imageModal<?php echo $report['id']; ?>" tabindex="-1">
-                                        <div class="modal-dialog modal-lg">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">Found Cat Image</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body text-center">
-                                                    <img src="<?php echo htmlspecialchars($report['image_path']); ?>" 
-                                                         class="img-fluid" 
-                                                         alt="Found cat image">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
+                            </div>
                         </div>
-                    <?php endif; ?>
+                    </div>
                 </div>
             </div>
-        </main>
+            <div class="card-footer bg-light text-muted py-3">
+                <i class="fas fa-info-circle me-2"></i>Report created on <?= (new DateTime($report['created_at']))->format('M j, Y g:i A') ?>
+            </div>
+        </div>
+        <?php endforeach; ?>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
 </body>
-</html> 
+</html>
