@@ -1,12 +1,11 @@
-purrsafe_db.sql
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3307
--- Generation Time: Nov 21, 2024 at 06:17 PM
+-- Host: 127.0.0.1
+-- Generation Time: Dec 05, 2024 at 08:04 AM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.0.30
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -33,8 +32,9 @@ CREATE TABLE `found_reports` (
   `user_id` int(11) NOT NULL,
   `report_id` int(11) NOT NULL,
   `owner_notification` text NOT NULL,
+  `founder_name` varchar(255) NOT NULL,
+  `contact_number` varchar(50) NOT NULL,
   `image_path` varchar(255) DEFAULT NULL,
-  `gps_location` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -58,18 +58,52 @@ CREATE TABLE `lost_reports` (
   `owner_name` varchar(255) NOT NULL,
   `phone_number` varchar(20) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `last_seen_location` varchar(255) DEFAULT NULL
+  `last_seen_location` varchar(255) NOT NULL,
+  `status` varchar(20) DEFAULT 'missing',
+  `found_date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `lost_reports`
 --
 
-INSERT INTO `lost_reports` (`id`, `user_id`, `cat_name`, `breed`, `gender`, `age`, `color`, `description`, `last_seen_date`, `last_seen_time`, `owner_name`, `phone_number`, `created_at`, `last_seen_location`) VALUES
-(1, 1, 'Gold', 'British Shorthair', 'male', 1, 'Yellow', 'Goofy, has a mark on the noes.', '2024-11-02', '15:37:00', 'Jaika Remina Madrid', '09189258041', '2024-11-19 07:38:09', NULL),
-(2, 1, 'Silver', 'British Shorthair', 'male', 1, 'Gray', 'Silent cat, prefers to be alone', '2024-11-16', '12:43:00', 'Jaika Remina Madrid', '09189258041', '2024-11-19 07:43:33', NULL),
-(3, 1, 'Blackie', 'American Shorthair', 'female', 2, 'Black', 'Sweet cat', '2024-06-04', '15:56:00', 'Jaika Remina Madrid', '09189258041', '2024-11-19 07:56:48', NULL),
-(6, 1, 'Whitney', 'Persian', 'female', 3, 'White', 'n/a', '2024-11-17', '08:48:00', 'Raymond Jerard Madrid', '09189258041', '2024-11-19 12:48:42', NULL);
+INSERT INTO `lost_reports` (`id`, `user_id`, `cat_name`, `breed`, `gender`, `age`, `color`, `description`, `last_seen_date`, `last_seen_time`, `owner_name`, `phone_number`, `created_at`, `last_seen_location`, `status`, `found_date`) VALUES
+(1, 1, 'Gold', 'British Shorthair', 'male', 1, 'Yellow', 'Goofy, has a mark on the noes.', '2024-11-02', '15:37:00', 'Jaika Remina Madrid', '09189258041', '2024-11-19 07:38:09', '', 'missing', NULL),
+(2, 1, 'Silver', 'British Shorthair', 'male', 1, 'Gray', 'Silent cat, prefers to be alone', '2024-11-16', '12:43:00', 'Jaika Remina Madrid', '09189258041', '2024-11-19 07:43:33', '', 'missing', NULL),
+(9, 1, 'Blackie', 'American Shorthair', 'male', 4, 'Black', 'Grumpy. Likes to be alone. ', '2024-12-01', '16:43:00', 'Jaika Remina Madrid', '09189258041', '2024-12-02 06:44:13', '', 'missing', NULL),
+(11, 1, 'Whitney', 'American Shorthair', 'female', 3, 'White', 'Cute, fluffy, likes humans', '2024-12-01', '15:03:00', 'Jaika Remina Madrid', '09189258041', '2024-12-02 07:03:46', 'Batangas State University - Alangilan Campus', 'lost', NULL),
+(12, 2, 'Guffy', 'Persian Siamese', 'female', 3, 'White Gray', 'Likes outdoor. Friendly.', '2024-11-18', '16:54:00', 'Jaika Madrid', '09189258041', '2024-12-02 09:54:32', 'Near outside the house', 'missing', NULL),
+(13, 2, 'Luna', 'Siamese', 'female', 5, 'White Gray', 'Introvert cat, tends to go alone.', '2024-11-07', '18:04:00', 'Jaika Madrid', '09189258041', '2024-12-02 10:04:26', 'Near outside the house', 'lost', NULL),
+(14, 2, 'Tabby', 'American Shorthair', 'male', 3, 'Calico', 'My cat are missing and might be strolling around the area I have last seen him.', '2024-11-28', '12:15:00', 'Jaika Remina Madrid', '09189258041', '2024-12-02 15:16:11', 'SM Lipa', 'lost', NULL),
+(17, 4, 'Chrys', 'Munchkin', 'male', 2, 'Black with yellow and white', 'The cat is very clingy, friendly and outgoing. Please feed him once u saw him, he\'s always hungry.', '2024-11-13', '09:40:00', 'Raymond Jerard Madrid', '09123456789', '2024-12-04 07:41:23', 'Brgy. San Agustin Alaminos Laguna', 'lost', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `message` text NOT NULL,
+  `is_read` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `notifications`
+--
+
+INSERT INTO `notifications` (`id`, `user_id`, `message`, `is_read`, `created_at`) VALUES
+(1, 2, 'Someone has found your cat! Check the found reports for details.', 0, '2024-12-04 23:37:53'),
+(2, 4, 'Thank you for finding the cat! The owner has been notified and will contact you soon.', 0, '2024-12-04 23:37:53'),
+(3, 4, 'Good news! Your cat \'Chrys\' has been found! Someone has submitted a found report. Please check your found reports section for contact details of the person who found your cat.', 0, '2024-12-04 23:54:55'),
+(4, 2, 'Thank you for submitting a found report for the cat \'Chrys\'! We have notified the owner, and they will be able to see your contact information. They will contact you soon to arrange the reunion.', 0, '2024-12-04 23:54:55'),
+(5, 1, 'Good news! Your cat \'Whitney\' has been found! Someone has submitted a found report. Please check your found reports section for contact details of the person who found your cat.', 0, '2024-12-05 00:25:09'),
+(6, 4, 'Thank you for submitting a found report for the cat \'Whitney\'! We have notified the owner, and they will be able to see your contact information. They will contact you soon to arrange the reunion.', 0, '2024-12-05 00:25:09'),
+(7, 1, 'Good news! Your cat \'Whitney\' has been found! Someone has submitted a found report. Please check your found reports section for contact details of the person who found your cat.', 0, '2024-12-05 00:25:57'),
+(8, 4, 'Thank you for submitting a found report for the cat \'Whitney\'! We have notified the owner, and they will be able to see your contact information. They will contact you soon to arrange the reunion.', 0, '2024-12-05 00:25:57');
 
 -- --------------------------------------------------------
 
@@ -91,8 +125,12 @@ CREATE TABLE `report_images` (
 INSERT INTO `report_images` (`id`, `report_id`, `image_path`, `uploaded_at`) VALUES
 (1, 1, 'uploads/673c4061881c5_6276326033263278916.jpg', '2024-11-19 07:38:09'),
 (2, 2, 'uploads/673c41a548b04_6276326033263278921.jpg', '2024-11-19 07:43:33'),
-(3, 3, 'uploads/673c44c03d107_blackcat-lede.jpeg', '2024-11-19 07:56:48'),
-(5, 6, 'uploads/673c892ae6736_Whitepersiancatoncouch-aba536ea9760403dac2042cc4c47144d.jpg', '2024-11-19 12:48:42');
+(8, 9, 'uploads/674d573d0350f_blackcat-lede.jpeg', '2024-12-02 06:44:13'),
+(13, 11, 'uploads/674d7a2b2ceda_white-cat-08.jpg', '2024-12-02 09:13:15'),
+(15, 12, 'uploads/674d83d824668_OIP.jpg', '2024-12-02 09:54:32'),
+(16, 13, 'uploads/674d862aeadec_OIP (1).jpg', '2024-12-02 10:04:26'),
+(17, 14, 'uploads/674dcf3bc970d_brown-tabby-cat-1103904.jpg', '2024-12-02 15:16:11'),
+(20, 17, 'uploads/675007a38c8fb_cute-adorable-playfull-munchkin-kitten_MDavidova_Shutterstock.jpg', '2024-12-04 07:41:23');
 
 -- --------------------------------------------------------
 
@@ -116,7 +154,8 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `fullname`, `username`, `email`, `password`, `created_at`) VALUES
 (1, 'Jaika', 'jaikajeon', 'jaikajeon@gmail.com', '$2y$10$CrmkoWVkrwAHFmPln3n0e.uJ/qarpeHQVCIXuWBv.nVyebnkCS4pC', '2024-11-17 03:17:06'),
 (2, 'Jaika Remina Madrid', 'remwina', 'remwina@gmail.com', '$2y$10$HPVp4NCM/oyW1wbzyNSmHervpn4JMvoOtcg1uF/4geEHinMmJAfd2', '2024-11-17 09:45:29'),
-(3, 'John Lorcan Paraiso', 'Lorx', 'johnlorcparadise@gmail.com', '$2y$10$wHL1KYlrtAWz3H1TXH5vSu.1XQFk5B/yS748Z06P.bpjJry8v.Gka', '2024-11-21 15:02:22');
+(3, 'John Lorcan Paraiso', 'Lorx', 'johnlorcparadise@gmail.com', '$2y$10$wHL1KYlrtAWz3H1TXH5vSu.1XQFk5B/yS748Z06P.bpjJry8v.Gka', '2024-11-21 15:02:22'),
+(4, 'Raymond Madrid', 'reirei', 'rjmadrid@gmail.com', '$2y$10$KbZ6n/zMI/IjZWymXmjvMOecF5mveWqNdrfyrTRAw.E0uLPbT1yUa', '2024-12-04 06:14:16');
 
 --
 -- Indexes for dumped tables
@@ -134,6 +173,13 @@ ALTER TABLE `found_reports`
 -- Indexes for table `lost_reports`
 --
 ALTER TABLE `lost_reports`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `notifications`
+--
+ALTER TABLE `notifications`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
 
@@ -160,25 +206,31 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `found_reports`
 --
 ALTER TABLE `found_reports`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `lost_reports`
 --
 ALTER TABLE `lost_reports`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+
+--
+-- AUTO_INCREMENT for table `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `report_images`
 --
 ALTER TABLE `report_images`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables
@@ -196,6 +248,12 @@ ALTER TABLE `found_reports`
 --
 ALTER TABLE `lost_reports`
   ADD CONSTRAINT `lost_reports_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+--
+-- Constraints for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
 -- Constraints for table `report_images`
