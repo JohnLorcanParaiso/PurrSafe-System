@@ -18,6 +18,8 @@ require_once 'db.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $action = isset($_POST['action']) ? $_POST['action'] : '';
     
+    error_log("POST action received: " . $action);
+    
     switch ($action) {
         case 'dashboard':
             header("Location: dashboard.php");
@@ -45,13 +47,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             header("Location: profile.php");
             exit();
         default:
+            error_log("Unhandled action: " . $action);
             header("Location: dashboard.php");
             exit();
     }
 }
 
-$username = $_SESSION['username'] ?? 'Guest';
-$fullname = $_SESSION['fullname'] ?? 'Guest User';
+$username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Guest';
+$fullname = isset($_SESSION['fullname']) ? $_SESSION['fullname'] : 'Guest User';
 ?>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -105,7 +108,7 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
             <li class="nav-item">
                 <form method="POST">
                     <button type="submit" name="action" value="help" class="btn btn-link nav-link text-dark">
-                        <i class="fas fa-question-circle me-2"></i> Help
+                        <i class="fas fa-question-circle me-2"></i> Help and Support
                     </button>
                 </form>
             </li>
@@ -139,8 +142,8 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                 <div class="d-flex align-items-center gap-3">
                     <?php include 'notifications.php'; ?>
                     <form method="POST" class="m-0">
-                        <button type="submit" name="action" value="profile" class="btn btn-outline-secondary rounded-circle p-2">
-                            <img src="images/user.png" alt="user profile" style="width: 28px; height: 28px;">
+                        <button type="submit" name="action" value="profile" class="btn rounded-circle p-0" style="width: 50px; height: 50px; overflow: hidden; border: none;">
+                            <img src="images/cat-user.png" alt="user profile" style="width: 100%; height: 100%; object-fit: cover;">
                         </button>
                     </form>
                 </div>

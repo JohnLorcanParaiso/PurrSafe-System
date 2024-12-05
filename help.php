@@ -120,13 +120,6 @@ $username = $_SESSION['username'] ?? 'Guest';
         <header class="header-container mb-4">
             <div class="d-flex justify-content-between align-items-center">
                 <h2 class="mb-0">Help & Support</h2>
-                <div class="d-flex align-items-center gap-3">
-                    <form method="POST" class="m-0">
-                        <button type="submit" name="action" value="profile" class="btn btn-outline-secondary rounded-circle p-2">
-                            <img src="images/user.png" alt="user profile" style="width: 28px; height: 28px;">
-                        </button>
-                    </form>
-                </div>
             </div>
         </header>
 
@@ -206,10 +199,9 @@ $username = $_SESSION['username'] ?? 'Guest';
                                         <div class="accordion-body">
                                             To delete a report:
                                             <ol>
-                                                <li>Go to "View Reports" in the side menu</li>
+                                                <li>Go to "My Profile" in the side menu</li>
                                                 <li>Find the report you want to delete</li>
-                                                <li>Click on the three dots (⋮) menu</li>
-                                                <li>Select "Delete Report"</li>
+                                                <li>Click on the delete button</li>
                                                 <li>Confirm the deletion when prompted</li>
                                             </ol>
                                             <p class="text-muted small">Note: Deleted reports cannot be recovered.</p>
@@ -228,7 +220,6 @@ $username = $_SESSION['username'] ?? 'Guest';
                                             To delete your profile:
                                             <ol>
                                                 <li>Go to "Settings" in the side menu</li>
-                                                <li>Scroll down to "Account Management"</li>
                                                 <li>Click on "Delete Account"</li>
                                                 <li>Enter your password to confirm</li>
                                                 <li>Select reason for deletion (optional)</li>

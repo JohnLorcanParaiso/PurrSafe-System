@@ -6,6 +6,23 @@ if (isset($_SESSION['user_id'])) {
     exit();
 }
 
+if (isset($_GET['message']) && $_GET['message'] === 'account_deleted') {
+    $successMessage = "Your account has been successfully deleted. We're sorry to see you go!";
+}
+
+if (isset($_GET['message']) && $_GET['message'] === 'goodbye') {
+    echo "<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'success',
+                title: 'Goodbye!',
+                text: 'Your account has been successfully deleted. See you again!',
+                confirmButtonColor: '#3085d6'
+            });
+        });
+    </script>";
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $login = new Login();
     
@@ -49,6 +66,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <p class="text-muted">Enter your credentials to login</p>
                         </div>
                         
+                        <?php if (isset($_GET['status']) && $_GET['status'] === 'success'): ?>
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <?php echo htmlspecialchars($_GET['message']); ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        <?php endif; ?>
+
                         <?php if(isset($_SESSION['success'])): ?>
                             <div class="alert alert-success alert-dismissible fade show" role="alert">
                                 <i class="fas fa-check-circle me-2"></i>

@@ -63,7 +63,7 @@ $report = $stmt->fetch(PDO::FETCH_ASSOC);
 $images = $report['images'] ? explode(',', $report['images']) : [];
 
 
-date_default_timezone_set('Asia/Manila'); 
+date_default_timezone_set('Asia/Singapore'); 
 ?>
 
 <!DOCTYPE html>
@@ -114,7 +114,7 @@ date_default_timezone_set('Asia/Manila');
             <li class="nav-item">
                 <form method="POST">
                     <button type="submit" name="action" value="help" class="btn btn-link nav-link text-dark">
-                        <i class="fas fa-question-circle me-2"></i> Help
+                        <i class="fas fa-question-circle me-2"></i> Help and Support
                     </button>
                 </form>
             </li>
@@ -136,27 +136,6 @@ date_default_timezone_set('Asia/Manila');
     </div>
 
     <div class="container-custom">
-        <header class="header-container mb-4">
-            <div class="d-flex justify-content-between align-items-center gap-3">
-                <form method="POST" class="d-flex flex-grow-1">
-                    <div class="input-group">
-                        <input type="text" name="search" class="form-control" placeholder="Search..">
-                        <button type="submit" name="action" value="search" class="btn btn-outline-secondary">
-                            <img src="images/search.png" alt="search" style="width: 20px;">
-                        </button>
-                    </div>
-                </form>
-                <div class="d-flex align-items-center gap-3">
-                    <?php include 'notifications.php'; ?>
-                    <form method="POST" class="m-0">
-                        <button type="submit" name="action" value="profile" class="btn btn-outline-secondary rounded-circle p-2">
-                            <img src="images/user.png" alt="user profile" style="width: 28px; height: 28px;">
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </header>
-
         <div class="mb-4">
             <a href="view.php" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
                 <i class="fas fa-arrow-left me-2"></i>Back to Reports
@@ -206,14 +185,14 @@ date_default_timezone_set('Asia/Manila');
 
                         <div class="mb-4">
                             <h5 class="text-primary mb-3">
-                                <i class="fas fa-clock me-2"></i>Last Seen Information
+                                <i class="fas fa-clock me-2"></i>Last Seen Date and Time
                             </h5>
                             <div class="card border-0 bg-light">
                                 <div class="card-body">
                                     <div class="row g-3">
                                         <div class="col-12">
                                             <p><strong>Date:</strong><br>
-                                            <?= date('Y-m-d', strtotime($report['last_seen_date'])) ?></p>
+                                            <?= htmlspecialchars($report['last_seen_date']) ?></p>
                                         </div>
                                         <div class="col-12">
                                             <p><strong>Time:</strong><br>

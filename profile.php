@@ -174,11 +174,11 @@ $userReports = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </form>
             <div class="d-flex align-items-center gap-3">
-                <?php include 'notifications.php'; ?>
-                <form method="POST" class="m-0">
-                    <button type="submit" name="action" value="profile" class="btn btn-outline-secondary rounded-circle p-2">
-                        <img src="images/user.png" alt="user profile" style="width: 28px; height: 28px;">
-                    </button>
+                    <?php include 'notifications.php'; ?>
+                    <form method="POST" class="m-0">
+                        <button type="submit" name="action" value="profile" class="btn rounded-circle p-0" style="width: 50px; height: 50px; overflow: hidden; border: none;">
+                            <img src="images/cat-user.png" alt="user profile" style="width: 100%; height: 100%; object-fit: cover;">
+                        </button>
                 </form>
             </div>
         </div>
@@ -189,7 +189,7 @@ $userReports = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="col-md-3">
                 <div class="card shadow-sm mb-4">
                     <div class="card-body text-center">
-                        <img src="images/user.png" alt="Profile Picture" class="rounded-circle mb-3" style="width: 80px; height: 80px;">
+                        <img src="images/cat-user.png" alt="Profile Picture" class="rounded-circle mb-3" style="width: 80px; height: 80px;">
                         <h5 class="mb-1"><?php echo htmlspecialchars($fullname); ?></h5>
                         <p class="text-muted mb-0">@<?php echo htmlspecialchars($username); ?></p>
                     </div>
@@ -225,7 +225,7 @@ $userReports = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="card-body">
                         <?php if (empty($userReports)): ?>
                             <div class="text-center py-4">
-                                <img src="images/no-data.png" alt="No Reports" style="width: 120px; opacity: 0.5;">
+                                <i class="fas fa-folder-open text-muted" style="font-size: 4rem; opacity: 0.5;"></i>
                                 <p class="text-muted mt-3">You haven't created any reports yet.</p>
                                 <form method="POST">
                                     <button type="submit" name="action" value="create" class="btn btn-custom">

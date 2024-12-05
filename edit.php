@@ -276,8 +276,8 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                 <div class="d-flex align-items-center gap-3">
                     <?php include 'notifications.php'; ?>
                     <form method="POST" class="m-0">
-                        <button type="submit" name="action" value="profile" class="btn btn-outline-secondary rounded-circle p-2">
-                            <img src="images/user.png" alt="user profile" style="width: 28px; height: 28px;">
+                        <button type="submit" name="action" value="profile" class="btn rounded-circle p-0" style="width: 50px; height: 50px; overflow: hidden; border: none;">
+                            <img src="images/cat-user.png" alt="user profile" style="width: 100%; height: 100%; object-fit: cover;">
                         </button>
                     </form>
                 </div>

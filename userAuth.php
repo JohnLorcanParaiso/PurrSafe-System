@@ -103,5 +103,42 @@ class Login extends Database {
             return false;
         }
     }
+
+    public function verifyPassword($password) {
+        if (!isset($_SESSION['user_id'])) {
+            return false;
+        }
+
+        $stmt = $this->pdo->prepare("SELECT password FROM users WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        $user = $stmt->fetch();
+
+        if ($user && password_verify($password, $user['password'])) {
+            return true;
+        }
+        return false;
+    }
+
+    public function deleteAccount($userId) {
+        $db = new Database();
+        
+        try {
+            $db->beginTransaction();
+            
+            // Delete reports first
+            $stmt = $db->pdo->prepare("DELETE FROM reports WHERE user_id = ?");
+            $stmt->execute([$userId]);
+            
+            // Then delete the user
+            $stmt = $db->pdo->prepare("DELETE FROM users WHERE id = ?");
+            $stmt->execute([$userId]);
+            
+            $db->commit();
+            return true;
+        } catch (Exception $e) {
+            $db->rollBack();
+            return false;
+        }
+    }
 }
 ?> 
