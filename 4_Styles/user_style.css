@@ -1,0 +1,188 @@
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+.side-menu {
+    position: fixed;
+    background: #E8F0F7;
+    width: 250px;
+    min-height: 100vh;
+    padding: 1rem;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+.container-custom {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+.btn-custom {
+    background: #E8F0F7;
+    color: black;
+    transition: all 0.3s ease;
+}
+
+.btn-custom:hover {
+    background: white;
+    border: 2px solid #E8F0F7;
+}
+
+.card {
+    transition: transform 0.3s ease;
+    border-radius: 10px;
+    border: none;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.logo {
+    width: 100px;
+    height: auto;
+    display: block;
+    margin: 20px;
+    padding: 14px;
+    border-radius: 8px;
+}
+
+.nav-item {
+    width: 100%;
+    padding: 0.5rem 0;
+}
+
+.nav-item form {
+    width: 100%;
+}
+
+.nav-item button {
+    width: 100%;
+    text-align: left;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+}
+
+.nav-item button:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+.header-container {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1000;
+    padding: 1rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.main-content {
+    padding-top: 2rem;
+}
+
+.table td, .table th {
+    vertical-align: middle;
+}
+
+.btn-primary {
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+:root {
+    --dashboard-blue: #2196F3;
+    --dashboard-light-blue: #E3F2FD;
+    --dashboard-hover-blue: #1976D2;
+}
+
+.dashboard-blue {
+    color: var(--dashboard-blue);
+}
+
+.card {
+    border-radius: 10px;
+    border: none;
+    background-color: white;
+}
+
+.custom-btn-primary {
+    background-color: var(--dashboard-blue);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.custom-btn-primary:hover {
+    background-color: var(--dashboard-hover-blue);
+    color: white;
+}
+
+.custom-input {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+}
+
+.custom-input:focus {
+    border-color: var(--dashboard-blue);
+    box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
+}
+
+body.bg-light {
+    background-color: var(--dashboard-light-blue) !important;
+}
+
+.form-label {
+    font-weight: 500;
+}
+
+/* Optional: Add a subtle hover effect to the card */
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(33, 150, 243, 0.15) !important;
+    transition: box-shadow 0.3s ease;
+}
+
+.alert-success {
+    background-color: #e8f5e9;
+    color: #28a745;
+    border-radius: 8px;
+}
+
+.alert i {
+    margin-right: 8px;
+}
+
+a.dashboard-blue:hover {
+    color: var(--dashboard-hover-blue);
+}
+
+/* Password strength indicator styles if you want to add it later */
+.password-strength {
+    height: 5px;
+    margin-top: 5px;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+/* SweetAlert2 Custom Styles */
+.swal2-popup {
+    border-radius: 12px;
+    padding: 2em;
+}
+
+.swal2-title {
+    color: var(--dashboard-blue);
+    font-family: 'Poppins', sans-serif;
+}
+
+.swal2-confirm {
+    background-color: var(--dashboard-blue) !important;
+    border-radius: 5px !important;
+    padding: 10px 24px !important;
+}
+
+.swal2-confirm:focus {
+    box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25) !important;
+}
