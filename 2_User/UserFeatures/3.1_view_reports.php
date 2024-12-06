@@ -67,26 +67,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
             exit();
             
-        case 'undo_found':
-            $report_id = isset($_POST['report_id']) ? $_POST['report_id'] : '';
-            if ($report_id) {
-                try {
-                    $stmt = $pdo->prepare("UPDATE lost_reports SET status = 'lost' WHERE id = ?");
-                    $success = $stmt->execute([$report_id]);
-                    
-                    if ($success) {
-                        $_SESSION['success_message'] = "Report status reverted to lost.";
-                    } else {
-                        $_SESSION['error_message'] = "Failed to update report status.";
-                    }
-                    header("Location: 3.1_view_reports.php");
-                } catch (PDOException $e) {
-                    $_SESSION['error_message'] = "Database error occurred.";
-                    header("Location: 3.1_view_reports.php");
-                }
-            }
-            exit();
-            
         case 'submit_found':
             $report_id = isset($_POST['report_id']) ? $_POST['report_id'] : '';
             if ($report_id && !empty($_POST['owner_notification']) && !empty($_POST['contact_number'])) {
@@ -96,16 +76,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     // Handle file upload
                     $image_path = null;
                     if (!empty($_FILES['image']['name'])) {
-                        $target_dir = "uploads/";
-                        $image_path = $target_dir . basename($_FILES['image']['name']);
-                        move_uploaded_file($_FILES['image']['tmp_name'], $image_path);
+                        $target_dir = "../../5_Uploads/";
+                        if (!file_exists($target_dir)) {
+                            mkdir($target_dir, 0777, true);
+                        }
+                        
+                        $file_extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+                        $new_filename = uniqid() . '_' . time() . '.' . $file_extension;
+                        $image_path = $target_dir . $new_filename;
+                        
+                        if (move_uploaded_file($_FILES['image']['tmp_name'], $image_path)) {
+                            // File uploaded successfully
+                            $image_path = basename($image_path); // Store only filename in database
+                        } else {
+                            throw new Exception("Failed to upload image");
+                        }
+                    }
+
+                    // Get the lost report details
+                    $ownerQuery = "SELECT user_id, cat_name FROM lost_reports WHERE id = ?";
+                    $ownerStmt = $pdo->prepare($ownerQuery);
+                    $ownerStmt->execute([$report_id]);
+                    $reportDetails = $ownerStmt->fetch();
+
+                    if (!$reportDetails) {
+                        throw new Exception("Lost report not found");
                     }
 
                     // Insert found report
                     $query = "INSERT INTO found_reports (user_id, report_id, owner_notification, founder_name, contact_number, image_path) 
                               VALUES (?, ?, ?, ?, ?, ?)";
                     $stmt = $pdo->prepare($query);
-                    $stmt->execute([
+                    $success = $stmt->execute([
                         $_SESSION['user_id'],
                         $report_id,
                         $_POST['owner_notification'],
@@ -114,37 +116,50 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         $image_path
                     ]);
 
+                    if (!$success) {
+                        throw new Exception("Failed to insert found report");
+                    }
+
                     // Update the lost_reports status
                     $updateQuery = "UPDATE lost_reports SET status = 'found' WHERE id = ?";
                     $updateStmt = $pdo->prepare($updateQuery);
-                    $updateStmt->execute([$report_id]);
+                    if (!$updateStmt->execute([$report_id])) {
+                        throw new Exception("Failed to update lost report status");
+                    }
 
-                    // Get the owner's user_id
-                    $ownerQuery = "SELECT user_id FROM lost_reports WHERE id = ?";
-                    $ownerStmt = $pdo->prepare($ownerQuery);
-                    $ownerStmt->execute([$report_id]);
-                    $owner = $ownerStmt->fetch();
-
-                    // Create notification
-                    $notificationQuery = "INSERT INTO notifications (recipient_id, sender_id, message, created_at, is_read) 
-                                        VALUES (?, ?, ?, NOW(), 0)";
+                    // Create notification for the owner
+                    $ownerNotification = "Good news! Your cat '" . htmlspecialchars($reportDetails['cat_name']) . "' has been found! Check your found reports section for contact details of the person who found your cat.";
+                    $notificationQuery = "INSERT INTO notifications (user_id, message, is_read, created_at) 
+                                        VALUES (?, ?, 0, NOW())";
                     $notificationStmt = $pdo->prepare($notificationQuery);
-                    $notificationStmt->execute([
-                        $owner['user_id'],
+                    if (!$notificationStmt->execute([
+                        $reportDetails['user_id'],
+                        $ownerNotification
+                    ])) {
+                        throw new Exception("Failed to create owner notification");
+                    }
+
+                    // Create notification for the finder
+                    $finderNotification = "Thank you for submitting a found report for the cat '" . htmlspecialchars($reportDetails['cat_name']) . "'! We have notified the owner, and they will be able to see your contact information. They will contact you soon to arrange the reunion.";
+                    if (!$notificationStmt->execute([
                         $_SESSION['user_id'],
-                        "Someone has found your cat! Check the found reports for details."
-                    ]);
+                        $finderNotification
+                    ])) {
+                        throw new Exception("Failed to create finder notification");
+                    }
 
                     $db->pdo->commit();
-                    exit('success');
+                    exit(json_encode(['status' => 'success']));
+                    
                 } catch (Exception $e) {
                     $db->pdo->rollBack();
+                    error_log("Found report submission error: " . $e->getMessage());
                     http_response_code(500);
-                    exit('error');
+                    exit(json_encode(['status' => 'error', 'message' => $e->getMessage()]));
                 }
             }
             http_response_code(400);
-            exit('invalid input');
+            exit(json_encode(['status' => 'error', 'message' => 'Invalid input']));
     }
 }
 
@@ -301,20 +316,22 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                                 if (!empty($images[0])): 
                                                     $displayImage = formatImagePath($images[0]);
                                                 ?>
-                                                    <div class="image-container position-relative">
+                                                    <div class="image-container">
                                                         <?php if ($report['status'] === 'found'): ?>
-                                                            <a href="#" onclick="showFoundPopup(); return false;">
-                                                        <?php else: ?>
-                                                            <a href="3.2_view_more.php?id=<?php echo $report['id']; ?>">
-                                                        <?php endif; ?>
+                                                            <div class="found-marker">FOUND</div>
                                                             <img src="<?= htmlspecialchars($displayImage) ?>" 
                                                                  class="card-img-top" 
                                                                  alt="<?= htmlspecialchars($report['cat_name']) ?>"
-                                                                 style="height: 200px; object-fit: cover; cursor: pointer;">
-                                                            <?php if ($report['status'] === 'found'): ?>
-                                                                <div class="found-marker">FOUND</div>
-                                                            <?php endif; ?>
-                                                        </a>
+                                                                 style="height: 200px; object-fit: cover; cursor: pointer;"
+                                                                 onclick="showFoundPopup('<?= htmlspecialchars($report['cat_name']) ?>')">
+                                                        <?php else: ?>
+                                                            <a href="3.2_view_more.php?id=<?php echo $report['id']; ?>">
+                                                                <img src="<?= htmlspecialchars($displayImage) ?>" 
+                                                                     class="card-img-top" 
+                                                                     alt="<?= htmlspecialchars($report['cat_name']) ?>"
+                                                                     style="height: 200px; object-fit: cover; cursor: pointer;">
+                                                            </a>
+                                                        <?php endif; ?>
                                                     </div>
                                                 <?php endif; ?>
                                                 
@@ -342,15 +359,11 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                                             </a>
                                                             <?php if ($report['status'] === 'found'): ?>
                                                                 <a href="#" 
-                                                                   class="btn btn-outline-danger btn-sm rounded-pill px-2 py-1" 
+                                                                   class="btn btn-outline-secondary btn-sm rounded-pill px-2 py-1" 
                                                                    style="font-size: 0.9rem;"
-                                                                   onclick="event.preventDefault(); document.getElementById('undo-found-form-<?= $report['id'] ?>').submit();">
-                                                                    <i class="fas fa-undo"></i> Undo Found
+                                                                   onclick="showFoundPopup('<?= htmlspecialchars($report['cat_name']) ?>')">
+                                                                    <i class="fas fa-check-circle"></i> Found
                                                                 </a>
-                                                                <form id="undo-found-form-<?= $report['id'] ?>" method="POST" style="display: none;">
-                                                                    <input type="hidden" name="action" value="undo_found">
-                                                                    <input type="hidden" name="report_id" value="<?= $report['id'] ?>">
-                                                                </form>
                                                             <?php elseif ($report['user_id'] != $_SESSION['user_id']): ?>
                                                                 <a href="#" 
                                                                    class="btn btn-outline-primary btn-sm rounded-pill px-2 py-1" 
@@ -448,47 +461,63 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
         
         var formData = new FormData(this);
         
-        fetch('view.php', {
+        fetch('3.1_view_reports.php', {  // Update the URL to the current file
             method: 'POST',
             body: formData
         })
-        .then(response => response.text())
+        .then(response => response.json())
         .then(data => {
-            var modal = bootstrap.Modal.getInstance(document.getElementById('foundCatModal'));
-            modal.hide();
-            
-            // Play the meow sound
-            const meowSound = document.getElementById('meowSound');
-            meowSound.play();
-            
-            Swal.fire({
-                title: 'Success!',
-                text: 'Thank you for reporting! The owner has been notified.',
-                imageUrl: '../../3_Images/praying-cat.gif',
-                imageWidth: 200,
-                imageHeight: 200,
-                imageAlt: 'Thank you cat',
-                showConfirmButton: true
-            }).then((result) => {
-                window.location.href = '3.1_view_reports.php?success=found';
-            });
+            if (data.status === 'success') {
+                var modal = bootstrap.Modal.getInstance(document.getElementById('foundCatModal'));
+                modal.hide();
+                
+                // Play the meow sound
+                const meowSound = document.getElementById('meowSound');
+                if (meowSound) {
+                    meowSound.play();
+                }
+                
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Thank you for reporting! The owner has been notified.',
+                    imageUrl: '../../3_Images/praying-cat.gif',
+                    imageWidth: 200,
+                    imageHeight: 200,
+                    imageAlt: 'Thank you cat',
+                    showConfirmButton: true
+                }).then((result) => {
+                    window.location.href = '3.1_view_reports.php?success=found';
+                });
+            } else {
+                throw new Error(data.message || 'An error occurred');
+            }
         })
         .catch(error => {
+            console.error('Error:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'An error occurred while submitting the report.'
+                text: error.message || 'An error occurred while submitting the report.'
             });
         });
     });
 
-    function showFoundPopup() {
+    function showFoundPopup(catName) {
         Swal.fire({
             title: 'Cat Already Found',
-            text: 'This cat has already been found and is no longer missing.',
+            text: `${catName} has already been found and is no longer missing.`,
             icon: 'info',
             confirmButtonText: 'OK',
-            confirmButtonColor: '#2196F3'
+            confirmButtonColor: '#2196F3',
+            allowOutsideClick: false,
+            customClass: {
+                popup: 'animated fadeInDown'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Optionally redirect or perform any action when OK is clicked
+                window.location.reload();
+            }
         });
     }
     </script>
