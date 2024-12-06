@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="card shadow-sm" style="aspect-ratio: 1/1.2;">
                     <div class="card-body p-4">
                         <div class="text-center mb-4">
-                            <img src="images/logo.png" alt="logo" class="img-fluid mb-3" style="max-width: 150px;">
+                            <img src="../../3_Images/logo.png" alt="logo" class="img-fluid mb-3" style="max-width: 150px;">
                             <h2 class="dashboard-blue">Create Account</h2>
                             <p class="text-muted">Fill in your details to register</p>
                         </div>

@@ -41,6 +41,12 @@ try {
     exit();
 }
 
+// Fetch user's profile image
+$stmt = $pdo->prepare("SELECT profile_image FROM users WHERE id = ?");
+$stmt->execute([$_SESSION['user_id']]);
+$user = $stmt->fetch();
+$_SESSION['profile_image'] = $user['profile_image'] ?? null;
+
 // Handle form submission for updates
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
     switch ($_POST['action']) {
@@ -198,49 +204,9 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Breed</label>
-                                    <select class="form-select" id="breedSelect" name="breed" required>
-                                        <option value="" disabled>Search or select breed...</option>
-                                        <optgroup label="Common/Mixed Breeds">
-                                            <option value="Domestic Short Hair (Mixed)" <?= $report['breed'] == 'Domestic Short Hair (Mixed)' ? 'selected' : '' ?>>Domestic Short Hair (Mixed)</option>
-                                            <option value="Domestic Medium Hair (Mixed)" <?= $report['breed'] == 'Domestic Medium Hair (Mixed)' ? 'selected' : '' ?>>Domestic Medium Hair (Mixed)</option>
-                                            <option value="Domestic Long Hair (Mixed)" <?= $report['breed'] == 'Domestic Long Hair (Mixed)' ? 'selected' : '' ?>>Domestic Long Hair (Mixed)</option>
-                                            <option value="Mixed Breed" <?= $report['breed'] == 'Mixed Breed' ? 'selected' : '' ?>>Mixed Breed</option>
-                                            <option value="Unknown" <?= $report['breed'] == 'Unknown' ? 'selected' : '' ?>>Unknown</option>
-                                        </optgroup>
-                                        <optgroup label="Pure Breeds">
-                                            <option value="Abyssinian" <?= $report['breed'] == 'Abyssinian' ? 'selected' : '' ?>>Abyssinian</option>
-                                            <option value="American Bobtail" <?= $report['breed'] == 'American Bobtail' ? 'selected' : '' ?>>American Bobtail</option>
-                                            <option value="American Curl" <?= $report['breed'] == 'American Curl' ? 'selected' : '' ?>>American Curl</option>
-                                            <option value="American Shorthair" <?= $report['breed'] == 'American Shorthair' ? 'selected' : '' ?>>American Shorthair</option>
-                                            <option value="American Wirehair" <?= $report['breed'] == 'American Wirehair' ? 'selected' : '' ?>>American Wirehair</option>
-                                            <option value="Balinese" <?= $report['breed'] == 'Balinese' ? 'selected' : '' ?>>Balinese</option>
-                                            <option value="Bengal" <?= $report['breed'] == 'Bengal' ? 'selected' : '' ?>>Bengal</option>
-                                            <option value="Birman" <?= $report['breed'] == 'Birman' ? 'selected' : '' ?>>Birman</option>
-                                            <option value="Bombay" <?= $report['breed'] == 'Bombay' ? 'selected' : '' ?>>Bombay</option>
-                                            <option value="British Shorthair" <?= $report['breed'] == 'British Shorthair' ? 'selected' : '' ?>>British Shorthair</option>
-                                            <option value="Burmese" <?= $report['breed'] == 'Burmese' ? 'selected' : '' ?>>Burmese</option>
-                                            <option value="Chartreux" <?= $report['breed'] == 'Chartreux' ? 'selected' : '' ?>>Chartreux</option>
-                                            <option value="Cornish Rex" <?= $report['breed'] == 'Cornish Rex' ? 'selected' : '' ?>>Cornish Rex</option>
-                                            <option value="Devon Rex" <?= $report['breed'] == 'Devon Rex' ? 'selected' : '' ?>>Devon Rex</option>
-                                            <option value="Egyptian Mau" <?= $report['breed'] == 'Egyptian Mau' ? 'selected' : '' ?>>Egyptian Mau</option>
-                                            <option value="Exotic Shorthair" <?= $report['breed'] == 'Exotic Shorthair' ? 'selected' : '' ?>>Exotic Shorthair</option>
-                                            <option value="Himalayan" <?= $report['breed'] == 'Himalayan' ? 'selected' : '' ?>>Himalayan</option>
-                                            <option value="Maine Coon" <?= $report['breed'] == 'Maine Coon' ? 'selected' : '' ?>>Maine Coon</option>
-                                            <option value="Manx" <?= $report['breed'] == 'Manx' ? 'selected' : '' ?>>Manx</option>
-                                            <option value="Norwegian Forest Cat" <?= $report['breed'] == 'Norwegian Forest Cat' ? 'selected' : '' ?>>Norwegian Forest Cat</option>
-                                            <option value="Persian" <?= $report['breed'] == 'Persian' ? 'selected' : '' ?>>Persian</option>
-                                            <option value="Ragdoll" <?= $report['breed'] == 'Ragdoll' ? 'selected' : '' ?>>Ragdoll</option>
-                                            <option value="Russian Blue" <?= $report['breed'] == 'Russian Blue' ? 'selected' : '' ?>>Russian Blue</option>
-                                            <option value="Siamese" <?= $report['breed'] == 'Siamese' ? 'selected' : '' ?>>Siamese</option>
-                                            <option value="Siberian" <?= $report['breed'] == 'Siberian' ? 'selected' : '' ?>>Siberian</option>
-                                            <option value="Sphynx" <?= $report['breed'] == 'Sphynx' ? 'selected' : '' ?>>Sphynx</option>
-                                        </optgroup>
-                                        <optgroup label="Other">
-                                            <option value="Other" <?= $report['breed'] == 'Other' ? 'selected' : '' ?>>Other (Please specify in description)</option>
-                                            <option value="Not Sure" <?= $report['breed'] == 'Not Sure' ? 'selected' : '' ?>>Not Sure</option>
-                                        </optgroup>
-                                    </select>
-                                    <div class="form-text">Start typing to search for breeds</div>
+                                    <input type="text" class="form-control" name="breed" 
+                                           value="<?= htmlspecialchars($report['breed']) ?>" 
+                                           placeholder="Enter cat's breed" required>
                                 </div>
                             </div>
                         </div>
@@ -390,63 +356,6 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
             alert('Please enter a valid phone number');
             return;
         }
-    });
-    </script>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-    <script>
-    $(document).ready(function() {
-        $('#breedSelect').select2({
-            theme: 'bootstrap-5',
-            width: '100%',
-            placeholder: 'Search or select breed...',
-            allowClear: true,
-            selectionCssClass: 'select2--large',
-            dropdownCssClass: 'select2--large',
-        });
-
-        // Custom styling to match your theme
-        const style = document.createElement('style');
-        style.textContent = `
-            .select2-container--bootstrap-5 .select2-selection {
-                border: 1px solid #dee2e6;
-                padding: 0.375rem 0.75rem;
-                height: calc(3.5rem + 2px);
-                line-height: 1.5;
-                font-size: 1rem;
-            }
-            .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
-                padding: 0.375rem 0;
-                color: #212529;
-            }
-            .select2-container--bootstrap-5 .select2-dropdown {
-                border-color: #dee2e6;
-                border-radius: 0.375rem;
-                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            }
-            .select2-container--bootstrap-5 .select2-results__option--highlighted[aria-selected] {
-                background-color: #ff6b6b;
-                color: white;
-            }
-            .select2-container--bootstrap-5 .select2-results__option[aria-selected=true] {
-                background-color: #ff6b6b;
-                color: white;
-            }
-            .select2-search__field {
-                padding: 0.5rem !important;
-            }
-            .select2-container--bootstrap-5 .select2-selection--single {
-                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
-                background-repeat: no-repeat;
-                background-position: right 0.75rem center;
-                background-size: 16px 12px;
-            }
-            .select2-container--bootstrap-5 .select2-selection--single .select2-selection__clear {
-                right: 2rem;
-            }
-        `;
-        document.head.appendChild(style);
     });
     </script>
 </body>

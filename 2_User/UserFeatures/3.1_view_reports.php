@@ -16,6 +16,12 @@ if (isset($_POST['action']) && $_POST['action'] === 'logout') {
 
 require_once '../../2_User/UserBackend/db.php';
 
+// Fetch user's profile image
+$stmt = $pdo->prepare("SELECT profile_image FROM users WHERE id = ?");
+$stmt->execute([$_SESSION['user_id']]);
+$user = $stmt->fetch();
+$_SESSION['profile_image'] = $user['profile_image'] ?? null;
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $action = isset($_POST['action']) ? $_POST['action'] : '';
     
@@ -163,8 +169,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-$sql = "SELECT r.*, u.fullname as reporter_name, u.email as reporter_email, u.profile_pic as profile_picture, 
-        GROUP_CONCAT(ri.image_path) as images, r.edited_at 
+$sql = "SELECT r.*, u.fullname as reporter_name, u.email as reporter_email, 
+        u.profile_image as profile_picture, GROUP_CONCAT(ri.image_path) as images, 
+        r.edited_at 
         FROM lost_reports r 
         LEFT JOIN report_images ri ON r.id = ri.report_id 
         LEFT JOIN users u ON r.user_id = u.id 
@@ -293,8 +300,139 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
             filter: brightness(0.9);
         }
 
-        .loading-text {
-            transition: opacity 0.2s ease-in-out;
+        /* Add these new styles */
+        .btn-gold {
+            background: linear-gradient(145deg, #ffd700, #ffb347);
+            border: none;
+            color: #000;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-gold:hover {
+            background: linear-gradient(145deg, #ffb347, #ffd700);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
+            color: #000;
+        }
+
+        .btn-gold::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to right,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            transform: rotate(45deg);
+            transition: all 0.5s;
+            opacity: 0;
+        }
+
+        .btn-gold:hover::before {
+            animation: shine 1.5s infinite;
+            opacity: 1;
+        }
+
+        @keyframes shine {
+            0% {
+                transform: rotate(45deg) translateX(-100%);
+            }
+            100% {
+                transform: rotate(45deg) translateX(100%);
+            }
+        }
+
+        .btn-found-already {
+            background: linear-gradient(145deg, #ffd700, #f0b400);
+            border: none;
+            color: #000;
+            position: relative;
+            overflow: hidden;
+            animation: permanentShine 3s infinite;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+
+        .btn-found-already:hover {
+            background: linear-gradient(145deg, #f0b400, #ffd700);
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+            color: #000;
+        }
+
+        .btn-found-already::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to right,
+                transparent,
+                rgba(255, 255, 255, 0.6),
+                transparent
+            );
+            transform: rotate(45deg);
+            animation: continuousShine 2s infinite;
+        }
+
+        @keyframes permanentShine {
+            0% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.8); }
+            100% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+        }
+
+        @keyframes continuousShine {
+            0% { transform: rotate(45deg) translateX(-100%); }
+            100% { transform: rotate(45deg) translateX(100%); }
+        }
+
+        .btn-silver {
+            background: linear-gradient(145deg, #e8e8e8, #c0c0c0);
+            border: none;
+            color: #333;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(192, 192, 192, 0.3);
+        }
+
+        .btn-silver:hover {
+            background: linear-gradient(145deg, #c0c0c0, #e8e8e8);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(192, 192, 192, 0.5);
+            color: #000;
+        }
+
+        .btn-silver::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to right,
+                transparent,
+                rgba(255, 255, 255, 0.5),
+                transparent
+            );
+            transform: rotate(45deg);
+            transition: all 0.5s;
+            opacity: 0;
+        }
+
+        .btn-silver:hover::before {
+            animation: shine 1.5s infinite;
+            opacity: 1;
         }
     </style>
 </head>
@@ -378,7 +516,9 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                     <?php include '7_notifications.php'; ?>
                     <form method="POST" class="m-0">
                         <button type="submit" name="action" value="profile" class="btn rounded-circle p-0" style="width: 50px; height: 50px; overflow: hidden; border: none;">
-                            <img src="../../3_Images/cat-user.png" alt="user profile" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img src="<?= !empty($_SESSION['profile_image']) ? '../../6_Profile_Pictures/' . htmlspecialchars($_SESSION['profile_image']) : '../../3_Images/cat-user.png' ?>" 
+                                 alt="user profile" 
+                                 style="width: 100%; height: 100%; object-fit: cover;">
                         </button>
                     </form>
                 </div>
@@ -428,29 +568,38 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                                 
                                                 <div class="card-body">
     <h5 class="card-title d-flex justify-content-between align-items-center">
-        <?= htmlspecialchars($report['cat_name']) ?>
+        <div class="d-flex align-items-center gap-2">
+            <?= htmlspecialchars($report['cat_name']) ?>
+            <?php if (!empty($report['edited_at'])): ?>
+                <span class="badge bg-purple-subtle text-purple" 
+                      data-bs-toggle="tooltip" 
+                      title="This report has been edited">
+                    <i class="fas fa-pen-fancy"></i>
+                </span>
+            <?php endif; ?>
+        </div>
         <div>
-        <?php if ($report['user_id'] == $_SESSION['user_id']): ?>
-    <span class="badge bg-info d-flex align-items-center gap-2" style="font-size: 0.8rem; padding: 8px 12px;">
-        Owner: <?= htmlspecialchars($_SESSION['fullname']) ?>
-        <div style="margin-right: -20px; margin-top: -20px; margin-bottom: -20px;">
-            <img src="<?= !empty($report['profile_picture']) ? '../../6_Profile_Pictures/' . htmlspecialchars($report['profile_picture']) : '../../3_Images/cat-user.png' ?>" 
-                 alt="Profile" 
-                 class="rounded-circle" 
-                 style="width: 70px; height: 70px; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        </div>
-    </span>
-<?php else: ?>
-    <span class="badge bg-warning text-dark d-flex align-items-center gap-2" style="font-size: 0.8rem; padding: 8px 12px;">
-        Owner: <?= htmlspecialchars($report['reporter_name']) ?>
-        <div style="margin-right: -20px; margin-top: -20px; margin-bottom: -20px;">
-            <img src="<?= !empty($report['profile_picture']) ? '../../6_Profile_Pictures/' . htmlspecialchars($report['profile_picture']) : '../../3_Images/cat-user.png' ?>" 
-                 alt="Profile" 
-                 class="rounded-circle" 
-                 style="width: 70px; height: 70px; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        </div>
-    </span>
-<?php endif; ?>
+            <?php if ($report['user_id'] == $_SESSION['user_id']): ?>
+                <span class="badge bg-info d-flex align-items-center gap-2" style="font-size: 0.8rem; padding: 8px 12px;">
+                    Owner: <?= htmlspecialchars($_SESSION['fullname']) ?>
+                    <div style="margin-right: -20px; margin-top: -20px; margin-bottom: -20px;">
+                        <img src="<?= !empty($report['profile_picture']) ? '../../6_Profile_Pictures/' . htmlspecialchars($report['profile_picture']) : '../../3_Images/cat-user.png' ?>" 
+                             alt="Profile" 
+                             class="rounded-circle" 
+                             style="width: 70px; height: 70px; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    </div>
+                </span>
+            <?php else: ?>
+                <span class="badge bg-warning text-dark d-flex align-items-center gap-2" style="font-size: 0.8rem; padding: 8px 12px;">
+                    Owner: <?= htmlspecialchars($report['reporter_name']) ?>
+                    <div style="margin-right: -20px; margin-top: -20px; margin-bottom: -20px;">
+                        <img src="<?= !empty($report['profile_picture']) ? '../../6_Profile_Pictures/' . htmlspecialchars($report['profile_picture']) : '../../3_Images/cat-user.png' ?>" 
+                             alt="Profile" 
+                             class="rounded-circle" 
+                             style="width: 70px; height: 70px; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    </div>
+                </span>
+            <?php endif; ?>
         </div>
     </h5>
     <p class="card-text">
@@ -465,14 +614,14 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
             </a>
             <?php if ($report['status'] === 'found'): ?>
                 <a href="#" 
-                   class="btn btn-outline-secondary btn-sm rounded-pill px-2 py-1" 
+                   class="btn btn-found-already btn-sm rounded-pill px-3 py-1" 
                    style="font-size: 0.9rem;"
                    onclick="showFoundPopup('<?= htmlspecialchars($report['cat_name']) ?>')">
-                    <i class="fas fa-check-circle"></i> Found
+                    <i class="fas fa-check-circle"></i> Already Found
                 </a>
             <?php elseif ($report['user_id'] != $_SESSION['user_id']): ?>
                 <a href="#" 
-                   class="btn btn-outline-primary btn-sm rounded-pill px-2 py-1" 
+                   class="btn btn-silver btn-sm rounded-pill px-3 py-1" 
                    style="font-size: 0.9rem;"
                    onclick="event.preventDefault(); showFoundForm('<?= $report['id'] ?>');">
                     <i class="fas fa-exclamation-circle"></i> Found

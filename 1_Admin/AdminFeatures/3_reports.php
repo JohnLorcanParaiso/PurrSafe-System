@@ -6,6 +6,12 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'admin') {
     header('Location: admin_login.php');
     exit();
 }
+
+require_once '../AdminBackend/admin_process.php';
+
+$adminProcess = new AdminProcess();
+$reports = $adminProcess->getAllReports();
+
 ?>
 
 <!DOCTYPE html>
@@ -47,25 +53,19 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'admin') {
                     </a>
                 </li>
                 <li>
-                    <a href="4_system_logs.php">
-                        <i class="fas fa-file-alt"></i>
-                        <span>System Logs</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="5_feedbacks.php">
+                    <a href="4_feedbacks.php">
                         <i class="fas fa-comments"></i>
                         <span>Feedbacks</span>
                     </a>
                 </li>
                 <li>
-                    <a href="6_create_announcement.php">
+                    <a href="5_create_announcement.php">
                         <i class="fas fa-bullhorn"></i>
                         <span>Create Announcement</span>
                     </a>
                 </li>
                 <li>
-                    <a href="7_settings.php">
+                    <a href="6_settings.php">
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
                     </a>
@@ -96,115 +96,53 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'admin') {
 
             <!-- Main Content -->
             <div class="container-fluid">
-                <!-- Report Type Tabs -->
-                <ul class="nav nav-tabs mb-4" id="reportTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="lost-tab" data-bs-toggle="tab" data-bs-target="#lost" type="button">
-                            Lost Cats Reports
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="found-tab" data-bs-toggle="tab" data-bs-target="#found" type="button">
-                            Found Cats Reports
-                        </button>
-                    </li>
-                </ul>
-
-                <!-- Tab Content -->
-                <div class="tab-content" id="reportsContent">
-                    <!-- Lost Cats Tab -->
-                    <div class="tab-pane fade show active" id="lost">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">Lost Cats Reports</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-striped" id="lostCatsTable">
-                                        <thead>
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Cat Name</th>
-                                                <th>Reporter</th>
-                                                <th>Location</th>
-                                                <th>Date Lost</th>
-                                                <th>Status</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <!-- Sample Data -->
-                                            <tr>
-                                                <td>1</td>
-                                                <td>Whiskers</td>
-                                                <td>John Doe</td>
-                                                <td>Main Street</td>
-                                                <td>2024-03-20</td>
-                                                <td><span class="badge bg-warning">Lost</span></td>
-                                                <td>
-                                                    <button class="btn btn-info btn-sm" onclick="viewReport(1, 'lost')">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                    <button class="btn btn-success btn-sm" onclick="updateStatus(1, 'lost')">
-                                                        <i class="fas fa-check"></i>
-                                                    </button>
-                                                    <button class="btn btn-danger btn-sm" onclick="deleteReport(1, 'lost')">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">All User Reports</h5>
                     </div>
-
-                    <!-- Found Cats Tab -->
-                    <div class="tab-pane fade" id="found">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">Found Cats Reports</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-striped" id="foundCatsTable">
-                                        <thead>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="reportsTable" class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Cat Name</th>
+                                        <th>Reporter</th>
+                                        <th>Breed</th>
+                                        <th>Last Seen</th>
+                                        <th>Status</th>
+                                        <th>Created At</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if ($reports && $reports->num_rows > 0): ?>
+                                        <?php while ($report = $reports->fetch_assoc()): ?>
                                             <tr>
-                                                <th>ID</th>
-                                                <th>Description</th>
-                                                <th>Finder</th>
-                                                <th>Location</th>
-                                                <th>Date Found</th>
-                                                <th>Status</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <!-- Sample Data -->
-                                            <tr>
-                                                <td>1</td>
-                                                <td>Orange Tabby</td>
-                                                <td>Jane Smith</td>
-                                                <td>Park Avenue</td>
-                                                <td>2024-03-21</td>
-                                                <td><span class="badge bg-info">Found</span></td>
+                                                <td><?php echo htmlspecialchars($report['id']); ?></td>
+                                                <td><?php echo htmlspecialchars($report['cat_name']); ?></td>
+                                                <td><?php echo htmlspecialchars($report['reporter_name']); ?></td>
+                                                <td><?php echo htmlspecialchars($report['breed']); ?></td>
+                                                <td><?php echo htmlspecialchars($report['last_seen_date']); ?></td>
+                                                <td><span class="badge <?php echo $report['status'] === 'found' ? 'bg-success' : 'bg-warning'; ?>"><?php echo ucfirst($report['status']); ?></span></td>
+                                                <td><?php echo date('M j, Y g:i A', strtotime($report['created_at'])); ?></td>
                                                 <td>
-                                                    <button class="btn btn-info btn-sm" onclick="viewReport(1, 'found')">
+                                                    <button class="btn btn-info btn-sm" onclick="viewReport(<?php echo $report['id']; ?>)">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
-                                                    <button class="btn btn-success btn-sm" onclick="updateStatus(1, 'found')">
-                                                        <i class="fas fa-check"></i>
-                                                    </button>
-                                                    <button class="btn btn-danger btn-sm" onclick="deleteReport(1, 'found')">
+                                                    <button class="btn btn-danger btn-sm" onclick="deleteReport(<?php echo $report['id']; ?>)">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </td>
                                             </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                                        <?php endwhile; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="8" class="text-center">No reports found</td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -221,108 +159,107 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'admin') {
 
     <script>
         $(document).ready(function() {
-            // Initialize DataTables
-            $('#lostCatsTable, #foundCatsTable').DataTable({
+            $('#reportsTable').DataTable({
                 responsive: true,
                 pageLength: 10,
-                order: [[0, 'desc']]
+                order: [[6, 'desc']]
             });
 
-            // Sidebar toggle
             $('#sidebarCollapse').on('click', function() {
                 $('#sidebar').toggleClass('active');
             });
         });
 
-        function viewReport(id, type) {
-            // Sample report data
-            const reportData = {
-                lost: {
-                    1: {
-                        catName: 'Whiskers',
-                        reporter: 'John Doe',
-                        contact: '123-456-7890',
-                        location: 'Main Street',
-                        dateLost: '2024-03-20',
-                        description: 'Gray tabby with white paws',
-                        status: 'Lost'
+        function viewReport(id) {
+            fetch(`../AdminBackend/admin_process.php?action=get_report&id=${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
                     }
-                },
-                found: {
-                    1: {
-                        description: 'Orange Tabby',
-                        finder: 'Jane Smith',
-                        contact: '098-765-4321',
-                        location: 'Park Avenue',
-                        dateFound: '2024-03-21',
-                        status: 'Found'
-                    }
-                }
-            };
+                    
+                    // Format the date
+                    const createdAt = new Date(data.created_at).toLocaleString();
+                    const lastSeen = new Date(data.last_seen_date).toLocaleDateString();
+                    
+                    // Create the status badge HTML
+                    const statusBadgeClass = data.status === 'found' ? 'bg-success' : 'bg-warning';
+                    const statusBadge = `<span class="badge ${statusBadgeClass}">${data.status === 'found' ? 'Found' : 'Missing'}</span>`;
 
-            const report = reportData[type][id];
-            const title = type === 'lost' ? 'Lost Cat Report Details' : 'Found Cat Report Details';
-            const content = type === 'lost' ? `
-                <div class="text-start">
-                    <p><strong>Cat Name:</strong> ${report.catName}</p>
-                    <p><strong>Reporter:</strong> ${report.reporter}</p>
-                    <p><strong>Contact:</strong> ${report.contact}</p>
-                    <p><strong>Location:</strong> ${report.location}</p>
-                    <p><strong>Date Lost:</strong> ${report.dateLost}</p>
-                    <p><strong>Description:</strong> ${report.description}</p>
-                    <p><strong>Status:</strong> ${report.status}</p>
-                </div>
-            ` : `
-                <div class="text-start">
-                    <p><strong>Description:</strong> ${report.description}</p>
-                    <p><strong>Finder:</strong> ${report.finder}</p>
-                    <p><strong>Contact:</strong> ${report.contact}</p>
-                    <p><strong>Location:</strong> ${report.location}</p>
-                    <p><strong>Date Found:</strong> ${report.dateFound}</p>
-                    <p><strong>Status:</strong> ${report.status}</p>
-                </div>
-            `;
-
-            Swal.fire({
-                title: title,
-                html: content,
-                confirmButtonColor: '#1a3c6d'
-            });
-        }
-
-        function updateStatus(id, type) {
-            Swal.fire({
-                title: 'Update Status',
-                text: "Mark this report as resolved?",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#28a745',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, resolve it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire('Updated!', 'Report status has been updated.', 'success')
-                    .then(() => {
-                        location.reload();
+                    Swal.fire({
+                        title: 'Report Details',
+                        html: `
+                            <div class="text-start">
+                                <p><strong>Cat Name:</strong> ${data.cat_name}</p>
+                                <p><strong>Reporter:</strong> ${data.reporter_name}</p>
+                                <p><strong>Breed:</strong> ${data.breed}</p>
+                                <p><strong>Gender:</strong> ${data.gender}</p>
+                                <p><strong>Color:</strong> ${data.color}</p>
+                                <p><strong>Age:</strong> ${data.age}</p>
+                                <p><strong>Last Seen Date:</strong> ${lastSeen}</p>
+                                <p><strong>Last Seen Location:</strong> ${data.last_seen_location}</p>
+                                <p><strong>Description:</strong> ${data.description}</p>
+                                <p><strong>Status:</strong> ${statusBadge}</p>
+                                <p><strong>Created At:</strong> ${createdAt}</p>
+                                ${data.image_path ? `<img src="../../5_Uploads/${data.image_path}" class="img-fluid mt-2" style="max-height: 200px;">` : '<p>No image available</p>'}
+                            </div>
+                        `,
+                        width: '600px',
+                        confirmButtonColor: '#1a3c6d',
+                        confirmButtonText: 'Close'
                     });
-                }
-            });
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message || 'Failed to load report details'
+                    });
+                });
         }
 
-        function deleteReport(id, type) {
+        function deleteReport(id) {
             Swal.fire({
                 title: 'Delete Report',
-                text: "Are you sure you want to delete this report?",
+                text: "Are you sure you want to delete this report? This action cannot be undone.",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Swal.fire('Deleted!', 'Report has been deleted.', 'success')
-                    .then(() => {
-                        location.reload();
+                    fetch('../AdminBackend/admin_process.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `action=deleteReport&id=${id}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            throw new Error(data.error);
+                        }
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: 'The report has been deleted successfully.',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            // Reload the page to refresh the table
+                            location.reload();
+                        });
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: error.message || 'Failed to delete the report'
+                        });
                     });
                 }
             });

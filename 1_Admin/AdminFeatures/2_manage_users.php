@@ -47,25 +47,19 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'admin') {
                     </a>
                 </li>
                 <li>
-                    <a href="4_system_logs.php">
-                        <i class="fas fa-file-alt"></i>
-                        <span>System Logs</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="5_feedbacks.php">
+                    <a href="4_feedbacks.php">
                         <i class="fas fa-comments"></i>
                         <span>Feedbacks</span>
                     </a>
                 </li>
                 <li>
-                    <a href="6_create_announcement.php">
+                    <a href="5_create_announcement.php">
                         <i class="fas fa-bullhorn"></i>
                         <span>Create Announcement</span>
                     </a>
                 </li>
                 <li>
-                    <a href="7_settings.php">
+                    <a href="6_settings.php">
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
                     </a>
@@ -108,31 +102,53 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'admin') {
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
+                                                <th>Full Name</th>
                                                 <th>Username</th>
                                                 <th>Email</th>
-                                                <th>Role</th>
+                                                <th>Reports</th>
+                                                <th>Join Date</th>
                                                 <th>Status</th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <!-- Sample Data -->
-                                            <tr>
-                                                <td>1</td>
-                                                <td>john_doe</td>
-                                                <td>john@example.com</td>
-                                                <td>User</td>
-                                                <td><span class="badge bg-success">Active</span></td>
-                                                <td>
-                                                    <button class="btn btn-info btn-sm" onclick="viewUser(1)">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                    <button class="btn btn-danger btn-sm" onclick="deleteUser(1)">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <!-- Add more sample rows as needed -->
+                                            <?php
+                                            require_once '../AdminBackend/admin_process.php';
+                                            $adminProcess = new AdminProcess();
+                                            $users = $adminProcess->getAllUsers();
+
+                                            if ($users && $users->num_rows > 0) {
+                                                while ($user = $users->fetch_assoc()) {
+                                                    $statusClass = $user['status'] === 'Active' ? 'bg-success' : 'bg-secondary';
+                                                    $joinDate = date('M d, Y', strtotime($user['created_at']));
+                                                    ?>
+                                                    <tr>
+                                                        <td><?php echo htmlspecialchars($user['id']); ?></td>
+                                                        <td><?php echo htmlspecialchars($user['fullname']); ?></td>
+                                                        <td><?php echo htmlspecialchars($user['username']); ?></td>
+                                                        <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                                        <td><?php echo htmlspecialchars($user['report_count']); ?></td>
+                                                        <td><?php echo $joinDate; ?></td>
+                                                        <td><span class="badge <?php echo $statusClass; ?>"><?php echo htmlspecialchars($user['status']); ?></span></td>
+                                                        <td>
+                                                            <button class="btn btn-info btn-sm" onclick="viewUser(<?php echo $user['id']; ?>, '<?php echo addslashes($user['username']); ?>', '<?php echo addslashes($user['email']); ?>', '<?php echo addslashes($user['fullname']); ?>', '<?php echo addslashes($user['created_at']); ?>', '<?php echo addslashes($user['status']); ?>', '<?php echo addslashes($user['report_count']); ?>')">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+                                                            <button class="btn btn-danger btn-sm" onclick="deleteUser(<?php echo $user['id']; ?>, '<?php echo addslashes($user['username']); ?>')">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    <?php
+                                                }
+                                            } else {
+                                                ?>
+                                                <tr>
+                                                    <td colspan="6" class="text-center">No users found</td>
+                                                </tr>
+                                                <?php
+                                            }
+                                            ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -166,35 +182,27 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'admin') {
             });
         });
 
-        function viewUser(userId) {
-            // Sample user data
-            const userData = {
-                username: 'john_doe',
-                email: 'john@example.com',
-                role: 'User',
-                status: 'Active',
-                created_at: '2024-03-20'
-            };
-
+        function viewUser(userId, username, email, fullname, createdAt, status) {
             Swal.fire({
                 title: 'User Details',
                 html: `
                     <div class="text-start">
-                        <p><strong>Username:</strong> ${userData.username}</p>
-                        <p><strong>Email:</strong> ${userData.email}</p>
-                        <p><strong>Role:</strong> ${userData.role}</p>
-                        <p><strong>Status:</strong> ${userData.status}</p>
-                        <p><strong>Created:</strong> ${userData.created_at}</p>
+                        <p><strong>Full Name:</strong> ${fullname}</p>
+                        <p><strong>Username:</strong> ${username}</p>
+                        <p><strong>Email:</strong> ${email}</p>
+                        <p><strong>Role:</strong> User</p>
+                        <p><strong>Status:</strong> ${status}</p>
+                        <p><strong>Created:</strong> ${createdAt}</p>
                     </div>
                 `,
                 confirmButtonColor: '#1a3c6d'
             });
         }
 
-        function deleteUser(userId) {
+        function deleteUser(userId, username) {
             Swal.fire({
                 title: 'Delete User',
-                text: "Are you sure you want to delete this user?",
+                text: `Are you sure you want to delete user "${username}"?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
@@ -202,7 +210,9 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'admin') {
                 confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Swal.fire('Deleted!', 'User has been deleted.', 'success')
+                    // Here you would typically make an AJAX call to delete the user
+                    // For now, we'll just show a success message
+                    Swal.fire('Deleted!', `User "${username}" has been deleted.`, 'success')
                     .then(() => {
                         location.reload();
                     });

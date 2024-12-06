@@ -103,8 +103,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Commit transaction
         $pdo->commit();
 
-        $_SESSION['report_success'] = true;
-        header('Location: 2.1_create_new_report.php');
+        $_SESSION['report_success'] = "Report has been successfully created!";
+        header("Location: 2.1_create_new_report.php");
         exit();
 
     } catch (Exception $e) {
@@ -113,8 +113,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $pdo->rollBack();
         }
         
-        $_SESSION['report_error'] = $e->getMessage();
-        header('Location: 2.1_create_new_report.php');
+        $_SESSION['report_error'] = "Error creating report. Please try again.";
+        header("Location: 2.1_create_new_report.php");
         exit();
     }
 } else {

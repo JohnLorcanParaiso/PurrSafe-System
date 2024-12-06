@@ -46,25 +46,19 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'admin') {
                     </a>
                 </li>
                 <li>
-                    <a href="4_system_logs.php">
-                        <i class="fas fa-file-alt"></i>
-                        <span>System Logs</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="5_feedbacks.php">
+                    <a href="4_feedbacks.php">
                         <i class="fas fa-comments"></i>
                         <span>Feedbacks</span>
                     </a>
                 </li>
                 <li>
-                    <a href="6_create_announcement.php">
+                    <a href="5_create_announcement.php">
                         <i class="fas fa-bullhorn"></i>
                         <span>Create Announcement</span>
                     </a>
                 </li>
                 <li class="active">
-                    <a href="7_settings.php">
+                    <a href="6_settings.php">
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
                     </a>

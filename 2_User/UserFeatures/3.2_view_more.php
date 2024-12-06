@@ -60,6 +60,12 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute([$report_id]);
 $report = $stmt->fetch(PDO::FETCH_ASSOC);
 
+// Fetch user's profile image
+$stmt = $pdo->prepare("SELECT profile_image FROM users WHERE id = ?");
+$stmt->execute([$_SESSION['user_id']]);
+$user = $stmt->fetch();
+$_SESSION['profile_image'] = $user['profile_image'] ?? null;
+
 function formatImagePath($image) {
     if (empty($image)) {
         return '../../3_Images/cat-user.png'; // Default image if none available

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 06, 2024 at 01:29 PM
+-- Generation Time: Dec 06, 2024 at 07:03 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -68,23 +68,19 @@ INSERT INTO `announcements` (`id`, `title`, `content`, `created_at`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `feedbacks`
+-- Table structure for table `feedback`
 --
 
-CREATE TABLE `feedbacks` (
-  `id` int(11) NOT NULL,
-  `admin_username` varchar(50) NOT NULL,
-  `feedback` text NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+CREATE TABLE `feedback` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `report_id` int(11) NOT NULL,
+  `rating` int(11) NOT NULL,
+  `feedback_text` text NOT NULL,
+  `feedback_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_report_feedback` (`report_id`),
+  CONSTRAINT `feedback_ibfk_1` FOREIGN KEY (`report_id`) REFERENCES `found_reports` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `feedbacks`
---
-
-INSERT INTO `feedbacks` (`id`, `admin_username`, `feedback`, `created_at`) VALUES
-(1, 'admin', 'Great service!', '2024-12-04 15:40:57'),
-(2, 'admin', 'Could improve response time.', '2024-12-04 15:40:57');
 
 -- --------------------------------------------------------
 
@@ -100,36 +96,20 @@ CREATE TABLE `found_reports` (
   `founder_name` varchar(255) NOT NULL,
   `contact_number` varchar(50) NOT NULL,
   `image_path` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `status` enum('pending','returned') DEFAULT 'pending',
+  `return_confirmed_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `found_reports`
 --
 
-INSERT INTO `found_reports` (`id`, `user_id`, `report_id`, `owner_notification`, `founder_name`, `contact_number`, `image_path`, `created_at`) VALUES
-(7, 3, 19, 'Good', 'John Lorcan Paraiso', '09265231560', NULL, '2024-12-06 11:31:06');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `logs`
---
-
-CREATE TABLE `logs` (
-  `id` int(11) NOT NULL,
-  `action` text NOT NULL,
-  `admin_username` varchar(50) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `logs`
---
-
-INSERT INTO `logs` (`id`, `action`, `admin_username`, `created_at`) VALUES
-(1, 'Logged in', 'admin', '2024-12-04 15:40:57'),
-(2, 'Created a new announcement', 'admin', '2024-12-04 15:40:57');
+INSERT INTO `found_reports` (`id`, `user_id`, `report_id`, `owner_notification`, `founder_name`, `contact_number`, `image_path`, `created_at`, `status`, `return_confirmed_at`) VALUES
+(7, 3, 19, 'Good', 'John Lorcan Paraiso', '09265231560', NULL, '2024-12-06 11:31:06', 'pending', NULL),
+(8, 3, 18, 'Safe and sound', 'John Lorcan Paraiso', '09265231560', '6752f6b2e7cdc_1733490354.jpg', '2024-12-06 13:05:54', 'pending', NULL),
+(9, 1, 21, 'Is this your cat? Dial me ASAP', 'Jaika', '0916339009', '67532e51d32ea_1733504593.jpg', '2024-12-06 17:03:13', 'pending', NULL),
+(10, 5, 23, 'He\'s safe', 'Taylor', '09265231560', NULL, '2024-12-06 17:23:40', 'pending', NULL);
 
 -- --------------------------------------------------------
 
@@ -162,14 +142,13 @@ CREATE TABLE `lost_reports` (
 --
 
 INSERT INTO `lost_reports` (`id`, `user_id`, `cat_name`, `breed`, `gender`, `age`, `color`, `description`, `last_seen_date`, `last_seen_time`, `owner_name`, `phone_number`, `created_at`, `last_seen_location`, `status`, `found_date`, `edited_at`) VALUES
-(1, 1, 'Gold', 'British Shorthair', 'male', 1, 'Yellow', 'Goofy, has a mark on the noes.', '2024-11-02', '15:37:00', 'Jaika Remina Madrid', '09189258041', '2024-11-19 07:38:09', '', 'missing', NULL, NULL),
-(2, 1, 'Silver', 'British Shorthair', 'male', 1, 'Gray', 'Silent cat, prefers to be alone', '2024-11-16', '12:43:00', 'Jaika Remina Madrid', '09189258041', '2024-11-19 07:43:33', '', 'missing', NULL, NULL),
-(9, 1, 'Blackie', 'American Shorthair', 'male', 4, 'Black', 'Grumpy. Likes to be alone. ', '2024-12-01', '16:43:00', 'Jaika Remina Madrid', '09189258041', '2024-12-02 06:44:13', '', 'missing', NULL, NULL),
-(11, 1, 'Whitney', 'American Shorthair', 'female', 3, 'White', 'Cute, fluffy, likes humans', '2024-12-01', '15:03:00', 'Jaika Remina Madrid', '09189258041', '2024-12-02 07:03:46', 'Batangas State University - Alangilan Campus', 'lost', NULL, NULL),
 (17, 4, 'Chrys', 'Munchkin', 'male', 2, 'Black with yellow and white', 'The cat is very clingy, friendly and outgoing. Please feed him once u saw him, he\'s always hungry.', '2024-11-13', '09:40:00', 'Raymond Jerard Madrid', '09123456789', '2024-12-04 07:41:23', 'Brgy. San Agustin Alaminos Laguna', 'lost', NULL, NULL),
-(18, 2, 'Serena', 'Sphynx', 'female', 1, 'Peach', 'Owning a Sphynx cat requires special attention to their grooming and health needs, including regular baths, protection from extreme temperatures, and frequent meals.', '2024-12-01', '20:12:00', 'Jaika Remina Madrid', '09189258041', '2024-12-06 00:12:20', 'Brgy. San Agustin Alaminos Laguna', 'missing', NULL, NULL),
+(18, 2, 'Serena', 'Sphynx', 'female', 1, 'Peach', 'Owning a Sphynx cat requires special attention to their grooming and health needs, including regular baths, protection from extreme temperatures, and frequent meals.', '2024-12-01', '20:12:00', 'Jaika Remina Madrid', '09189258041', '2024-12-06 00:12:20', 'Brgy. San Agustin Alaminos Laguna', 'found', NULL, NULL),
 (19, 1, 'Tabby', 'American Shorthair', 'male', 2, 'Tricolors of black yellow and white', 'Always hungry, feed him when found.', '2024-12-04', '09:00:00', 'Jaika Remina Madrid', '09189258041', '2024-12-06 01:00:31', 'SM Lipa', 'found', NULL, NULL),
-(20, 3, 'Layla', 'Birman', 'female', 2, 'Grey', 'Cute', '2024-12-06', '18:35:00', 'John Lorcan Paraiso', '09265231560', '2024-12-06 09:36:25', 'West Park', 'missing', NULL, '2024-12-06 12:16:42');
+(20, 3, 'Layla', 'Birman', 'female', 2, 'Grey', 'Cute', '2024-12-06', '18:35:00', 'John Lorcan Paraiso', '09265231560', '2024-12-06 09:36:25', 'West Park', 'missing', NULL, '2024-12-06 12:16:42'),
+(21, 3, 'Fiona', 'Sphynx', 'male', 2, 'Hairless', 'Last seen this morning', '2024-12-06', '00:00:00', 'John Lorcan Paraiso', '09265231560', '2024-12-06 14:05:35', 'West Park', 'found', NULL, NULL),
+(22, 5, 'Karynn', 'Sphynx', 'female', 0, 'Orange Black', 'Last seen this morning', '2024-12-04', '00:00:00', 'John Lorcan Paraiso', '09265231560', '2024-12-06 14:44:53', 'At the streets', 'missing', NULL, NULL),
+(23, 3, 'Clark', 'Ragamuffin', 'male', 3, 'Black', 'Handsome cat', '2024-12-06', '01:19:00', 'John Lorcan Paraiso', '09265231560', '2024-12-06 17:18:14', 'North Park', 'found', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -199,7 +178,13 @@ INSERT INTO `notifications` (`id`, `user_id`, `message`, `is_read`, `created_at`
 (7, 1, 'Good news! Your cat \'Whitney\' has been found! Someone has submitted a found report. Please check your found reports section for contact details of the person who found your cat.', 0, '2024-12-05 00:25:57'),
 (8, 4, 'Thank you for submitting a found report for the cat \'Whitney\'! We have notified the owner, and they will be able to see your contact information. They will contact you soon to arrange the reunion.', 0, '2024-12-05 00:25:57'),
 (9, 1, 'Good news! Your cat \'Tabby\' has been found! Check your found reports section for contact details of the person who found your cat.', 0, '2024-12-06 11:31:06'),
-(10, 3, 'Thank you for submitting a found report for the cat \'Tabby\'! We have notified the owner, and they will be able to see your contact information. They will contact you soon to arrange the reunion.', 0, '2024-12-06 11:31:06');
+(10, 3, 'Thank you for submitting a found report for the cat \'Tabby\'! We have notified the owner, and they will be able to see your contact information. They will contact you soon to arrange the reunion.', 0, '2024-12-06 11:31:06'),
+(11, 2, 'Good news! Your cat \'Serena\' has been found! Check your found reports section for contact details of the person who found your cat.', 0, '2024-12-06 13:05:54'),
+(12, 3, 'Thank you for submitting a found report for the cat \'Serena\'! We have notified the owner, and they will be able to see your contact information. They will contact you soon to arrange the reunion.', 0, '2024-12-06 13:05:54'),
+(13, 3, 'Good news! Your cat \'Fiona\' has been found! Check your found reports section for contact details of the person who found your cat.', 0, '2024-12-06 17:03:13'),
+(14, 1, 'Thank you for submitting a found report for the cat \'Fiona\'! We have notified the owner, and they will be able to see your contact information. They will contact you soon to arrange the reunion.', 0, '2024-12-06 17:03:13'),
+(15, 3, 'Good news! Your cat \'Clark\' has been found! Check your found reports section for contact details of the person who found your cat.', 0, '2024-12-06 17:23:40'),
+(16, 5, 'Thank you for submitting a found report for the cat \'Clark\'! We have notified the owner, and they will be able to see your contact information. They will contact you soon to arrange the reunion.', 0, '2024-12-06 17:23:40');
 
 -- --------------------------------------------------------
 
@@ -249,14 +234,14 @@ CREATE TABLE `report_images` (
 --
 
 INSERT INTO `report_images` (`id`, `report_id`, `image_path`, `uploaded_at`) VALUES
-(1, 1, 'uploads/673c4061881c5_6276326033263278916.jpg', '2024-11-19 07:38:09'),
-(2, 2, 'uploads/673c41a548b04_6276326033263278921.jpg', '2024-11-19 07:43:33'),
-(8, 9, 'uploads/674d573d0350f_blackcat-lede.jpeg', '2024-12-02 06:44:13'),
-(13, 11, 'uploads/674d7a2b2ceda_white-cat-08.jpg', '2024-12-02 09:13:15'),
 (20, 17, 'uploads/675007a38c8fb_cute-adorable-playfull-munchkin-kitten_MDavidova_Shutterstock.jpg', '2024-12-04 07:41:23'),
 (21, 18, '../../5_Uploads/675241648b1c0_1284076693de06bd79d61f69377d25d7.jpg', '2024-12-06 00:12:20'),
 (22, 19, '../../5_Uploads/67524cafec88c_brown-tabby-cat-1103904.jpg', '2024-12-06 01:00:31'),
-(23, 20, '../../5_Uploads/6752c59921942_birman.jpg', '2024-12-06 09:36:25');
+(23, 20, '../../5_Uploads/6752c59921942_birman.jpg', '2024-12-06 09:36:25'),
+(24, 21, '../../5_Uploads/675304afe17f7_Sphynx-4-645mk062211.jpg', '2024-12-06 14:05:35'),
+(25, 21, '../../5_Uploads/675304afe6b84_birman.jpg', '2024-12-06 14:05:35'),
+(26, 22, '../../5_Uploads/67530de52decf_images (1).jpg', '2024-12-06 14:44:53'),
+(27, 23, '../../5_Uploads/675331d6721d9_RagaMuffin.jpg', '2024-12-06 17:18:14');
 
 -- --------------------------------------------------------
 
@@ -271,18 +256,20 @@ CREATE TABLE `users` (
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `profile_pic` varchar(255) DEFAULT NULL
+  `profile_pic` varchar(255) DEFAULT NULL,
+  `profile_image` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `fullname`, `username`, `email`, `password`, `created_at`, `profile_pic`) VALUES
-(1, 'Jaika', 'jaikajeon', 'jaikajeon@gmail.com', '$2y$10$CrmkoWVkrwAHFmPln3n0e.uJ/qarpeHQVCIXuWBv.nVyebnkCS4pC', '2024-11-17 03:17:06', NULL),
-(2, 'Jaika Remina Madrid', 'remwina', 'remwina@gmail.com', '$2y$10$HPVp4NCM/oyW1wbzyNSmHervpn4JMvoOtcg1uF/4geEHinMmJAfd2', '2024-11-17 09:45:29', NULL),
-(3, 'John Lorcan Paraiso', 'Lorx', 'johnlorcparadise@gmail.com', '$2y$10$wHL1KYlrtAWz3H1TXH5vSu.1XQFk5B/yS748Z06P.bpjJry8v.Gka', '2024-11-21 15:02:22', NULL),
-(4, 'Raymond Madrid', 'reirei', 'rjmadrid@gmail.com', '$2y$10$KbZ6n/zMI/IjZWymXmjvMOecF5mveWqNdrfyrTRAw.E0uLPbT1yUa', '2024-12-04 06:14:16', NULL);
+INSERT INTO `users` (`id`, `fullname`, `username`, `email`, `password`, `created_at`, `profile_pic`, `profile_image`) VALUES
+(1, 'Jaika', 'jaikajeon', 'jaikajeon@gmail.com', '$2y$10$CrmkoWVkrwAHFmPln3n0e.uJ/qarpeHQVCIXuWBv.nVyebnkCS4pC', '2024-11-17 03:17:06', NULL, NULL),
+(2, 'Jaika Remina Madrid', 'remwina', 'remwina@gmail.com', '$2y$10$HPVp4NCM/oyW1wbzyNSmHervpn4JMvoOtcg1uF/4geEHinMmJAfd2', '2024-11-17 09:45:29', NULL, NULL),
+(3, 'John Lorcan Paraiso', 'Lorx', 'johnlorcparadise@gmail.com', '$2y$10$wHL1KYlrtAWz3H1TXH5vSu.1XQFk5B/yS748Z06P.bpjJry8v.Gka', '2024-11-21 15:02:22', NULL, NULL),
+(4, 'Raymond Madrid', 'reirei', 'rjmadrid@gmail.com', '$2y$10$KbZ6n/zMI/IjZWymXmjvMOecF5mveWqNdrfyrTRAw.E0uLPbT1yUa', '2024-12-04 06:14:16', NULL, NULL),
+(5, 'Taylor', 'Swift', 'taylor@example.com', '$2y$10$anLrT5cxVsX4j/FA27Nz9eZ27Y3GukChqx8aXOWuS9mUEzhD1sGqe', '2024-12-06 14:13:47', NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -303,10 +290,11 @@ ALTER TABLE `announcements`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `feedbacks`
+-- Indexes for table `feedback`
 --
-ALTER TABLE `feedbacks`
-  ADD PRIMARY KEY (`id`);
+ALTER TABLE `feedback`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `report_id` (`report_id`);
 
 --
 -- Indexes for table `found_reports`
@@ -315,12 +303,6 @@ ALTER TABLE `found_reports`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `report_id` (`report_id`);
-
---
--- Indexes for table `logs`
---
-ALTER TABLE `logs`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `lost_reports`
@@ -383,34 +365,28 @@ ALTER TABLE `announcements`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- AUTO_INCREMENT for table `feedbacks`
+-- AUTO_INCREMENT for table `feedback`
 --
-ALTER TABLE `feedbacks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+ALTER TABLE `feedback`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `found_reports`
 --
 ALTER TABLE `found_reports`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
--- AUTO_INCREMENT for table `logs`
---
-ALTER TABLE `logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `lost_reports`
 --
 ALTER TABLE `lost_reports`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `reports`
@@ -428,17 +404,23 @@ ALTER TABLE `report_edit_history`
 -- AUTO_INCREMENT for table `report_images`
 --
 ALTER TABLE `report_images`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `feedback`
+--
+ALTER TABLE `feedback`
+  ADD CONSTRAINT `feedback_ibfk_1` FOREIGN KEY (`report_id`) REFERENCES `found_reports` (`id`);
 
 --
 -- Constraints for table `found_reports`

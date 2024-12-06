@@ -6,6 +6,85 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'admin') {
     header('Location: admin_login.php');
     exit();
 }
+
+// Add this near the top of the file, after session_start()
+require_once '../../2_User/UserBackend/db.php';
+
+abstract class Dashboard extends Database {
+    abstract public function getTotalUsers();
+    abstract public function getTotalReports();
+    abstract public function getActiveUsers();
+    
+    // Common method that can be used by all dashboard types
+    protected function getCount($query) {
+        try {
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            return $result->fetch_assoc()['count'];
+        } catch (Exception $e) {
+            return 0;
+        }
+    }
+    
+    // Common method for fetching reports
+    protected function fetchReports($query, $limit) {
+        try {
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("i", $limit);
+            $stmt->execute();
+            return $stmt->get_result();
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+}
+
+class AdminDashboard extends Dashboard {
+    public function getTotalUsers() {
+        return $this->getCount("SELECT COUNT(*) as count FROM users");
+    }
+
+    public function getTotalReports() {
+        return $this->getCount("SELECT COUNT(*) as count FROM lost_reports");
+    }
+
+    public function getActiveUsers() {
+        return $this->getCount("
+            SELECT COUNT(DISTINCT user_id) as count 
+            FROM lost_reports 
+            WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        ");
+    }
+
+    public function getRecentReports($limit = 10) {
+        $query = "
+            SELECT lr.*, u.username as reporter_name,
+                   ri.image_path,
+                   CASE 
+                       WHEN fr.id IS NOT NULL THEN 'found'
+                       ELSE 'missing'
+                   END as status
+            FROM lost_reports lr
+            LEFT JOIN users u ON lr.user_id = u.id
+            LEFT JOIN report_images ri ON lr.id = ri.report_id
+            LEFT JOIN found_reports fr ON lr.id = fr.report_id
+            GROUP BY lr.id
+            ORDER BY lr.created_at DESC
+            LIMIT ?
+        ";
+        return $this->fetchReports($query, $limit);
+    }
+}
+
+// Initialize the dashboard
+$dashboard = new AdminDashboard();
+$totalUsers = $dashboard->getTotalUsers();
+$totalReports = $dashboard->getTotalReports();
+$activeUsers = $dashboard->getActiveUsers();
+$recentReports = $dashboard->getRecentReports();
+
+// Update the statistics cards section with real data
 ?>
 
 <!DOCTYPE html>
@@ -47,25 +126,19 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'admin') {
                     </a>
                 </li>
                 <li>
-                    <a href="4_system_logs.php">
-                        <i class="fas fa-file-alt"></i>
-                        <span>System Logs</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="5_feedbacks.php">
+                    <a href="4_feedbacks.php">
                         <i class="fas fa-comments"></i>
                         <span>Feedbacks</span>
                     </a>
                 </li>
                 <li>
-                    <a href="6_create_announcement.php">
+                    <a href="5_create_announcement.php">
                         <i class="fas fa-bullhorn"></i>
                         <span>Create Announcement</span>
                     </a>
                 </li>
                 <li>
-                    <a href="7_settings.php">
+                    <a href="6_settings.php">
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
                     </a>
@@ -104,7 +177,7 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'admin') {
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="card-subtitle mb-2">Total Users</h6>
-                                        <h2 class="card-title mb-0">150</h2>
+                                        <h2 class="card-title mb-0"><?php echo $totalUsers; ?></h2>
                                     </div>
                                     <div class="icon-circle bg-primary">
                                         <i class="fas fa-users text-white"></i>
@@ -120,7 +193,7 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'admin') {
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="card-subtitle mb-2">Total Reports</h6>
-                                        <h2 class="card-title mb-0">45</h2>
+                                        <h2 class="card-title mb-0"><?php echo $totalReports; ?></h2>
                                     </div>
                                     <div class="icon-circle bg-warning">
                                         <i class="fas fa-flag text-white"></i>
@@ -136,7 +209,7 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'admin') {
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="card-subtitle mb-2">Active Users</h6>
-                                        <h2 class="card-title mb-0">85</h2>
+                                        <h2 class="card-title mb-0"><?php echo $activeUsers; ?></h2>
                                     </div>
                                     <div class="icon-circle bg-success">
                                         <i class="fas fa-user-check text-white"></i>
@@ -167,38 +240,30 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'admin') {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>Whiskers</td>
-                                        <td>Persian</td>
-                                        <td>Male</td>
-                                        <td>White with light gray patches</td>
-                                        <td>November 10, 2024</td>
-                                        <td>
-                                            <button class="btn btn-action btn-view" onclick="viewReport(1)">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-action btn-delete" onclick="deleteReport(1)">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>Luna</td>
-                                        <td>Maine Coon</td>
-                                        <td>Female</td>
-                                        <td>Cream with dark brown ears and tail</td>
-                                        <td>November 15, 2024</td>
-                                        <td>
-                                            <button class="btn btn-action btn-view" onclick="viewReport(2)">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-action btn-delete" onclick="deleteReport(2)">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
+                                    <?php if ($recentReports && $recentReports->num_rows > 0): ?>
+                                        <?php while ($report = $recentReports->fetch_assoc()): ?>
+                                            <tr>
+                                                <td><?php echo htmlspecialchars($report['id']); ?></td>
+                                                <td><?php echo htmlspecialchars($report['cat_name']); ?></td>
+                                                <td><?php echo htmlspecialchars($report['breed']); ?></td>
+                                                <td><?php echo htmlspecialchars($report['gender']); ?></td>
+                                                <td><?php echo htmlspecialchars($report['color']); ?></td>
+                                                <td><?php echo date('F j, Y', strtotime($report['last_seen_date'])); ?></td>
+                                                <td>
+                                                    <button class="btn btn-action btn-view" onclick="viewReport(<?php echo $report['id']; ?>)">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-action btn-delete" onclick="deleteReport(<?php echo $report['id']; ?>)">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        <?php endwhile; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="7" class="text-center">No reports found</td>
+                                        </tr>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -259,36 +324,31 @@ if (!isset($_SESSION['admin_id']) || $_SESSION['admin_role'] !== 'admin') {
 
         // View report details
         function viewReport(reportId) {
-            // Sample report data
-            const reportDetails = {
-                1: {
-                    username: 'John Doe',
-                    type: 'Bug Report',
-                    description: 'Login issue on mobile devices. Cannot access the dashboard.',
-                    created_at: '2024-03-20 14:30:00'
-                },
-                2: {
-                    username: 'Jane Smith',
-                    type: 'Feature Request',
-                    description: 'Please add dark mode support for better visibility.',
-                    created_at: '2024-03-19 09:15:00'
-                }
-            };
-
-            const report = reportDetails[reportId];
-            
-            Swal.fire({
-                title: 'Report Details',
-                html: `
-                    <div class="text-start">
-                        <p><strong>User:</strong> ${report.username}</p>
-                        <p><strong>Type:</strong> ${report.type}</p>
-                        <p><strong>Description:</strong> ${report.description}</p>
-                        <p><strong>Date:</strong> ${report.created_at}</p>
-                    </div>
-                `,
-                confirmButtonColor: '#1a3c6d'
-            });
+            // Fetch report details via AJAX
+            fetch(`../AdminBackend/admin_process.php?action=get_report&id=${reportId}`)
+                .then(response => response.json())
+                .then(report => {
+                    if (report.error) {
+                        throw new Error(report.error);
+                    }
+                    Swal.fire({
+                        title: 'Report Details',
+                        html: `
+                            <div class="text-start">
+                                <p><strong>Cat Name:</strong> ${report.cat_name}</p>
+                                <p><strong>Reporter:</strong> ${report.reporter_name}</p>
+                                <p><strong>Breed:</strong> ${report.breed}</p>
+                                <p><strong>Description:</strong> ${report.description}</p>
+                                <p><strong>Last Seen:</strong> ${report.last_seen_date}</p>
+                                <p><strong>Status:</strong> ${report.status}</p>
+                            </div>
+                        `,
+                        confirmButtonColor: '#1a3c6d'
+                    });
+                })
+                .catch(error => {
+                    Swal.fire('Error', error.message || 'Failed to load report details', 'error');
+                });
         }
 
         // Delete report

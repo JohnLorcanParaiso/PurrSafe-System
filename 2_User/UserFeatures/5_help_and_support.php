@@ -334,7 +334,22 @@ $support_status = isSupportAvailable();
                             <div class="mb-4">
                                 <h6><i class="fas fa-phone me-2"></i>Phone Support</h6>
                                 <p>+63 918 925 8041</p>
-                                <small class="text-muted">Available Mon-Fri, 9AM-5PM</small>
+                                <div class="d-flex align-items-center">
+                                    <small class="text-muted me-2">Available Mon-Fri, 9AM-5PM</small>
+                                    <?php
+                                    switch($support_status) {
+                                        case 'open':
+                                            echo '<span class="badge bg-success rounded-pill">Open Now</span>';
+                                            break;
+                                        case 'closing_soon':
+                                            echo '<span class="badge bg-warning rounded-pill">About to Close</span>';
+                                            break;
+                                        case 'closed':
+                                            echo '<span class="badge bg-danger rounded-pill">Closed</span>';
+                                            break;
+                                    }
+                                    ?>
+                                </div>
                             </div>
                             <form class="mt-4">
                                 <h6><i class="fas fa-ticket-alt me-2"></i>Create Support Ticket</h6>
@@ -383,26 +398,37 @@ $support_status = isSupportAvailable();
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
     <script>
     function updateSupportStatus() {
-        fetch('check_support_status.php')
-            .then(response => response.json())
-            .then(data => {
-                const statusBadge = document.querySelector('.support-status-badge');
-                switch(data.status) {
-                    case 'open':
-                        statusBadge.className = 'badge bg-success rounded-pill support-status-badge';
-                        statusBadge.textContent = 'Open Now';
-                        break;
-                    case 'closing_soon':
-                        statusBadge.className = 'badge bg-warning rounded-pill support-status-badge';
-                        statusBadge.textContent = 'About to Close';
-                        break;
-                    case 'closed':
-                        statusBadge.className = 'badge bg-danger rounded-pill support-status-badge';
-                        statusBadge.textContent = 'Closed';
-                        break;
-                }
-            });
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const day = now.getDay();
+        const totalMinutes = (hours * 60) + minutes;
+        
+        // Check if it's a weekday (1-5, Monday-Friday)
+        const isWeekday = day >= 1 && day <= 5;
+        
+        // Define business hours in minutes
+        const startTime = 9 * 60;  // 9 AM
+        const endTime = 17 * 60;   // 5 PM
+        const closingWarning = endTime - 30; // 30 minutes before closing
+        
+        // Update the badge in the Contact Admin card
+        const statusBadge = document.querySelector('.contact-admin .badge');
+        
+        if (isWeekday && totalMinutes >= startTime && totalMinutes < closingWarning) {
+            statusBadge.className = 'badge bg-success rounded-pill';
+            statusBadge.textContent = 'Open Now';
+        } else if (isWeekday && totalMinutes >= closingWarning && totalMinutes < endTime) {
+            statusBadge.className = 'badge bg-warning rounded-pill';
+            statusBadge.textContent = 'About to Close';
+        } else {
+            statusBadge.className = 'badge bg-danger rounded-pill';
+            statusBadge.textContent = 'Closed';
+        }
     }
+
+    // Initial update
+    updateSupportStatus();
 
     // Update status every minute
     setInterval(updateSupportStatus, 60000);

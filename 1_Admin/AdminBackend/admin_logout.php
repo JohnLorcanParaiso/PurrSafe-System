@@ -21,11 +21,11 @@ if (isset($_GET['confirm']) && $_GET['confirm'] === 'true') {
     session_destroy();
 
     // Redirect to admin login
-    header('Location: /Admin/admin_login.php'); // Redirect to the correct login page
+    header('Location: ../../1_Admin/AdminBackend/admin_login.php'); // Updated path
     exit();
 } else {
-    // If not confirmed, redirect back to the dashboard or show a confirmation message
-    header('Location: /Admin/1_dashboard.php'); // Redirect to the dashboard
+    // If not confirmed, redirect back to the dashboard
+    header('Location: ../../1_Admin/AdminFeatures/1_admin_dashboard.php'); // Updated path
     exit();
 }
 ?>

@@ -21,51 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $action = isset($_POST['action']) ? $_POST['action'] : '';
     
     switch ($action) {
-        case 'deleteAccount':
-            $password = $_POST['deleteAccountPassword'];
-            $reason = $_POST['deleteReason'];
-            $reasonOther = $_POST['deleteReasonOther'];
-            
-            // Verify password first
-            if ($login->verifyPassword($password)) {
-                $userId = $_SESSION['user_id'];
-                
-                // Start transaction to ensure all deletions complete
-                $db->beginTransaction();
-                try {
-                    // Delete all report images associated with this user's reports
-                    $stmt = $db->pdo->prepare("DELETE FROM report_images WHERE report_id IN (SELECT id FROM lost_reports WHERE user_id = ?)");
-                    $stmt->execute([$userId]);
-                    
-                    // Delete all reports associated with this user
-                    $stmt = $db->pdo->prepare("DELETE FROM lost_reports WHERE user_id = ?");
-                    $stmt->execute([$userId]);
-                    
-                    // Delete the user account
-                    $stmt = $db->pdo->prepare("DELETE FROM users WHERE id = ?");
-                    $stmt->execute([$userId]);
-                    
-                    $db->commit();
-                    
-                    // Clear session and redirect with success message
-                    session_start();
-                    session_unset();
-                    session_destroy();
-                    header('Location: login.php?status=success&message=Account successfully deleted');
-                    exit();
-                } catch (Exception $e) {
-                    $db->rollBack();
-                    $_SESSION['error'] = "Failed to delete account: " . $e->getMessage();
-                    header('Location: 6_others.php');
-                    exit();
-                }
-            } else {
-                $_SESSION['error'] = "Incorrect password. Please try again.";
-                header('Location: 6_others.php');
-                exit();
-            }
-            
-        // Navigation cases
         case 'dashboard':
             header("Location: 1_user_dashboard.php");
             exit();
@@ -100,6 +55,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 $username = $_SESSION['username'] ?? 'Guest';
 $fullname = $_SESSION['fullname'] ?? 'Guest User';
 $email = $_SESSION['email'] ?? '';
+
+// Fetch user's profile image
+$stmt = $pdo->prepare("SELECT profile_image FROM users WHERE id = ?");
+$stmt->execute([$_SESSION['user_id']]);
+$user = $stmt->fetch();
+$_SESSION['profile_image'] = $user['profile_image'] ?? null;
 ?>
 
 <!DOCTYPE html>
@@ -181,7 +142,7 @@ $email = $_SESSION['email'] ?? '';
             <div class="row g-4">
                 <div class="col-12">
                     <div class="accordion" id="settingsAccordion">
-                        <!-- Future Updates (First because it shows upcoming features) -->
+                      
                         <div class="accordion-item">
                             <h2 class="accordion-header">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#futureUpdates">
@@ -214,6 +175,11 @@ $email = $_SESSION['email'] ?? '';
                                                 <strong>Notification Settings</strong>
                                                 <p class="text-muted small mb-0">Customize your notification preferences</p>
                                             </div>
+                                            <div class="list-group-item">
+                                                <i class="fas fa-user-times me-2 text-danger"></i>
+                                                <strong>Delete Account</strong>
+                                                <p class="text-muted small mb-0">Permanently remove your account and all associated data</p>
+                                            </div>
                                         </div>
                                         <div class="text-center mt-3">
                                             <small class="text-muted">These features are currently under development</small>
@@ -223,7 +189,6 @@ $email = $_SESSION['email'] ?? '';
                             </div>
                         </div>
 
-                        <!-- Donation (Second as it's a key supporting feature) -->
                         <div class="accordion-item">
                             <h2 class="accordion-header">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#donation">
@@ -261,16 +226,15 @@ $email = $_SESSION['email'] ?? '';
                             </div>
                         </div>
 
-                        <!-- About (Third as it provides general information) -->
                         <div class="accordion-item">
                             <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#about">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#about">
                                     <i class="fas fa-info-circle me-2"></i>About
                                 </button>
                             </h2>
-                            <div id="about" class="accordion-collapse collapse" data-bs-parent="#settingsAccordion">
+                            <div id="about" class="accordion-collapse collapse show" data-bs-parent="#settingsAccordion">
                                 <div class="accordion-body">
-                                    <!-- Website Information -->
+                                    
                                     <div class="mb-4">
                                         <h6 class="mb-3">About PurrSafe</h6>
                                         <p class="text-muted small">
@@ -279,36 +243,34 @@ $email = $_SESSION['email'] ?? '';
                                         </p>
                                     </div>
 
-                                    <!-- Developers Section -->
                                     <h6 class="mb-3">Development Team - GROUP 3</h6>
                                     <div class="row g-3">
                                         <div class="col-md-4 text-center">
                                             <div class="mb-2">
-                                                <img src="../../3_Images/developers/paraiso.jpg" class="rounded-circle" alt="Lorcan" 
+                                                <img src="../../3_Images/developers/katigbak.png" class="rounded-circle" alt="katigbak" 
                                                      style="width: 80px; height: 80px; object-fit: cover;">
                                             </div>
-                                            <h6 class="mb-1">John Lorcan Paraiso</h6>
+                                            <h6 class="mb-1">Justin Kyle E. Katigbak</h6>
+                                            <small class="text-muted d-block">Member</small>
+                                        </div>
+                                        <div class="col-md-4 text-center">
+                                            <div class="mb-2">
+                                                <img src="../../3_Images/developers/madrid.png" class="rounded-circle" alt="madrid" 
+                                                     style="width: 80px; height: 80px; object-fit: cover;">
+                                            </div>
+                                            <h6 class="mb-1">Jaika Remina A. Madrid</h6>
+                                            <small class="text-muted d-block">Member</small>
+                                        </div>
+                                        <div class="col-md-4 text-center">
+                                            <div class="mb-2">
+                                                <img src="../../3_Images/developers/paraiso.png" class="rounded-circle" alt="paraiso" 
+                                                     style="width: 80px; height: 80px; object-fit: cover;">
+                                            </div>
+                                            <h6 class="mb-1">John Lorcan E. Paraiso</h6>
                                             <small class="text-muted d-block">Leader</small>
-                                        </div>
-                                        <div class="col-md-4 text-center">
-                                            <div class="mb-2">
-                                                <img src="../../3_Images/developers/katigbak.jpg" class="rounded-circle" alt="Justin" 
-                                                     style="width: 80px; height: 80px; object-fit: cover;">
-                                            </div>
-                                            <h6 class="mb-1">Justin Katigbak</h6>
-                                            <small class="text-muted d-block">Member</small>
-                                        </div>
-                                        <div class="col-md-4 text-center">
-                                            <div class="mb-2">
-                                                <img src="../../3_Images/developers/madrid.jpg" class="rounded-circle" alt="Jaika" 
-                                                     style="width: 80px; height: 80px; object-fit: cover;">
-                                            </div>
-                                            <h6 class="mb-1">Jaika Remina Madrid</h6>
-                                            <small class="text-muted d-block">Member</small>
                                         </div>
                                     </div>
 
-                                    <!-- Version Information -->
                                     <div class="mt-4 text-center">
                                         <small class="text-muted">
                                             Version 1.0.0 | December 2024
@@ -316,54 +278,6 @@ $email = $_SESSION['email'] ?? '';
                                             © PurrSafe Lost and Found Cat System. All rights reserved.
                                         </small>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Delete Account -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#deleteAccount">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>Delete Account
-                                </button>
-                            </h2>
-                            <div id="deleteAccount" class="accordion-collapse collapse show" data-bs-parent="#settingsAccordion">
-                                <div class="accordion-body">
-                                    <form method="POST" id="deleteAccountForm">
-                                        <div class="alert alert-danger" role="alert">
-                                            <i class="fas fa-exclamation-circle me-2"></i>
-                                            Warning: This action is permanent and cannot be undone. All your data will be permanently deleted.
-                                        </div>
-                                        
-                                        <div class="mb-3">
-                                            <label class="form-label">Reason for Deletion (Optional)</label>
-                                            <select class="form-select mb-2" name="deleteReason" id="deleteReason">
-                                                <option value="">Select a reason...</option>
-                                                <option value="no_longer_needed">No longer needed</option>
-                                                <option value="privacy_concerns">Privacy concerns</option>
-                                                <option value="not_satisfied">Not satisfied with the service</option>
-                                                <option value="other">Other</option>
-                                            </select>
-                                            <textarea class="form-control" name="deleteReasonOther" rows="2" 
-                                                      placeholder="If 'Other', please specify your reason... (Optional)"></textarea>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Current Password</label>
-                                            <input type="password" class="form-control" name="deleteAccountPassword" required>
-                                            <div class="form-check mt-2">
-                                                <input class="form-check-input" type="checkbox" name="confirmDelete" id="confirmDelete" required>
-                                                <label class="form-check-label" for="confirmDelete">
-                                                    I understand this is permanent
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex justify-content-end mt-3">
-                                            <input type="hidden" name="action" value="deleteAccount">
-                                            <button type="button" class="btn btn-danger" onclick="confirmAccountDeletion()">
-                                                <i class="fas fa-trash-alt me-2"></i>Delete Account
-                                            </button>
-                                        </div>
-                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -375,16 +289,5 @@ $email = $_SESSION['email'] ?? '';
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-    <script>
-    function confirmAccountDeletion() {
-        if (document.getElementById('confirmDelete').checked) {
-            if (confirm('Are you absolutely sure you want to delete your account? This action cannot be undone.')) {
-                document.getElementById('deleteAccountForm').submit();
-            }
-        } else {
-            alert('Please confirm that you understand this action is permanent by checking the checkbox.');
-        }
-    }
-    </script>
 </body>
 </html> 
