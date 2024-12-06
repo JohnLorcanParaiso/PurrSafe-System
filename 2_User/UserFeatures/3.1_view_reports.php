@@ -148,9 +148,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-$sql = "SELECT r.*, GROUP_CONCAT(ri.image_path) as images 
+$sql = "SELECT r.*, u.fullname as reporter_name, GROUP_CONCAT(ri.image_path) as images 
         FROM lost_reports r 
         LEFT JOIN report_images ri ON r.id = ri.report_id 
+        LEFT JOIN users u ON r.user_id = u.id 
         GROUP BY r.id 
         ORDER BY r.created_at DESC";
 $stmt = $pdo->query($sql);
@@ -319,7 +320,16 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                                 
                                                 <div class="card-body">
                                                     <h5 
-                                                        class="card-title"><?= htmlspecialchars($report['cat_name']) ?></h5>
+                                                        class="card-title d-flex justify-content-between align-items-center">
+                                                        <?= htmlspecialchars($report['cat_name']) ?>
+                                                        <?php if ($report['user_id'] == $_SESSION['user_id']): ?>
+                                                            <span class="badge bg-info" style="font-size: 0.7rem;">Your Cat</span>
+                                                        <?php else: ?>
+                                                            <span class="badge bg-warning text-dark" style="font-size: 0.7rem;">
+                                                                Reported by: <?= htmlspecialchars($report['reporter_name']) ?>
+                                                            </span>
+                                                        <?php endif; ?>
+                                                    </h5>
                                                     <p class="card-text">
                                                         <strong>Breed:</strong> <?= htmlspecialchars($report['breed']) ?><br>
                                                         <strong>Last Seen:</strong> <?= htmlspecialchars($report['last_seen_date']) ?>
@@ -341,7 +351,7 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                                                     <input type="hidden" name="action" value="undo_found">
                                                                     <input type="hidden" name="report_id" value="<?= $report['id'] ?>">
                                                                 </form>
-                                                            <?php else: ?>
+                                                            <?php elseif ($report['user_id'] != $_SESSION['user_id']): ?>
                                                                 <a href="#" 
                                                                    class="btn btn-outline-primary btn-sm rounded-pill px-2 py-1" 
                                                                    style="font-size: 0.9rem;"
@@ -402,18 +412,18 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                             <label class="form-label">How would you like to proceed?</label>
                             <div class="border p-3 rounded d-flex">
                                 <div class="me-2">
-                                    <input type="checkbox" id="return_cat" name="return_cat" value="1" class="btn-check" autocomplete="off">
+                                    <input type="radio" id="return_cat" name="proceed_option" value="return_cat" class="btn-check" autocomplete="off" required>
                                     <label for="return_cat" class="btn btn-outline-warning">Return the Cat to Owner</label>
                                 </div>
                                 <div>
-                                    <input type="checkbox" id="owner_claim" name="owner_claim" value="1" class="btn-check" autocomplete="off">
+                                    <input type="radio" id="owner_claim" name="proceed_option" value="owner_claim" class="btn-check" autocomplete="off">
                                     <label for="owner_claim" class="btn btn-outline-success">Owner to Claim the Cat</label>
                                 </div>
                             </div>
                         </div>
 
                         <div class="mb-4">
-                            <label for="image" class="form-label">Upload Image of the Found Cat:</label>
+                            <label for="image" class="form-label">Upload Image of the Found Cat (optional):</label>
                             <input type="file" id="image" name="image" class="custom-input form-control" accept="image/*" />
                         </div>
 
@@ -447,13 +457,20 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
             var modal = bootstrap.Modal.getInstance(document.getElementById('foundCatModal'));
             modal.hide();
             
+            // Play the meow sound
+            const meowSound = document.getElementById('meowSound');
+            meowSound.play();
+            
             Swal.fire({
-                icon: 'success',
                 title: 'Success!',
                 text: 'Thank you for reporting! The owner has been notified.',
+                imageUrl: '../../3_Images/praying-cat.gif',
+                imageWidth: 200,
+                imageHeight: 200,
+                imageAlt: 'Thank you cat',
                 showConfirmButton: true
             }).then((result) => {
-                window.location.href = 'view.php?success=found';
+                window.location.href = '3.1_view_reports.php?success=found';
             });
         })
         .catch(error => {
@@ -475,5 +492,7 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
         });
     }
     </script>
+    <img src="../../3_Images/praying-cat.gif" class="flying-cat" id="flyingCat" alt="Thank you!">
+    <audio id="meowSound" src="../../7_Sounds/cute ringtone   2.mp3" preload="auto"></audio>
 </body>
 </html> 
