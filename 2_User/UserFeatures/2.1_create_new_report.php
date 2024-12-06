@@ -3,13 +3,13 @@ require_once '../../2_User/UserBackend/userAuth.php';
 
 $login = new Login();
 if (!$login->isLoggedIn()) {
-    header('Location: login.php');
+    header('Location: ../../2_User/UserBackend/login.php');
     exit();
 }
 
 if (isset($_POST['action']) && $_POST['action'] === 'logout') {
     $login->logout();
-    header('Location: login.php');
+    header('Location: ../../2_User/UserBackend/login.php');
     exit();
 }
 
@@ -169,7 +169,7 @@ $fullname = isset($_SESSION['fullname']) ? $_SESSION['fullname'] : 'Guest User';
                             </div>
                         </div>
                         <div class="card-body px-4 py-5">
-                            <form action="process_report.php" method="POST" enctype="multipart/form-data">
+                            <form action="2.2_process_report.php" method="POST" enctype="multipart/form-data">
                                 <div class="mb-4">
                                     <h6 class="fw-bold mb-3">Cat Information</h6>
                                     <div class="row g-3">
@@ -198,7 +198,7 @@ $fullname = isset($_SESSION['fullname']) ? $_SESSION['fullname'] : 'Guest User';
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label">Age (Years)</label>
-                                            <input type="number" class="form-control" name="age" min="0" max="30" placeholder="Enter age" required>
+                                            <input type="number" class="form-control" name="age" min="0" max="30" step="0.1" placeholder="Enter age (e.g. 1.5)" required>
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label">Color</label>
@@ -280,9 +280,7 @@ $fullname = isset($_SESSION['fullname']) ? $_SESSION['fullname'] : 'Guest User';
             icon: 'success',
             confirmButtonColor: '#3085d6'
         }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = 'view.php';
-            }
+            window.location.href = '3.1_view_reports.php';
         });
         <?php unset($_SESSION['report_success']); ?>
     <?php endif; ?>
@@ -298,8 +296,6 @@ $fullname = isset($_SESSION['fullname']) ? $_SESSION['fullname'] : 'Guest User';
     <?php endif; ?>
 
     document.querySelector('form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
         const requiredFields = this.querySelectorAll('[required]');
         let isValid = true;
         let firstInvalidField = null;
@@ -322,6 +318,7 @@ $fullname = isset($_SESSION['fullname']) ? $_SESSION['fullname'] : 'Guest User';
         }
         
         if (!isValid) {
+            e.preventDefault(); // Only prevent submission if invalid
             Swal.fire({
                 title: 'Error!',
                 text: 'Please fill in all required fields and upload at least one image.',
@@ -332,9 +329,8 @@ $fullname = isset($_SESSION['fullname']) ? $_SESSION['fullname'] : 'Guest User';
                     firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             });
-        } else {
-            this.submit(); // Submit the form if valid
         }
+        // If valid, the form will submit naturally
     });
     </script>
 </body>

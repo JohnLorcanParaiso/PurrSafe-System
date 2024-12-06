@@ -5,7 +5,13 @@ require_once '../../2_User/UserBackend/db.php';
 $db = new Database();
 $login = new Login();
 if (!$login->isLoggedIn()) {
-    header('Location: login.php');
+    header('Location: ../../2_User/UserBackend/login.php');
+    exit();
+}
+
+if (isset($_POST['action']) && $_POST['action'] === 'logout') {
+    $login->logout();
+    header('Location: ../../2_User/UserBackend/login.php');
     exit();
 }
 

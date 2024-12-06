@@ -3,14 +3,14 @@ require_once '../../2_User/UserBackend/userAuth.php';
 
 $login = new Login();
 if (!$login->isLoggedIn()) {
-    header('Location: login.php');
+    header('Location: ../../2_User/UserBackend/login.php');
     exit();
 }
 
 //Logout
 if (isset($_POST['action']) && $_POST['action'] === 'logout') {
     $login->logout();
-    header('Location: login.php');
+    header('Location: ../../2_User/UserBackend/login.php');
     exit();
 }
 

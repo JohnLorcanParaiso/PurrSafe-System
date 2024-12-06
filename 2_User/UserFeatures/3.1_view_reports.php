@@ -3,14 +3,14 @@ require_once '../../2_User/UserBackend/userAuth.php';
 
 $login = new Login();
 if (!$login->isLoggedIn()) {
-    header('Location: login.php');
+    header('Location: ../../2_User/UserBackend/login.php');
     exit();
 }
 
 //Logout
 if (isset($_POST['action']) && $_POST['action'] === 'logout') {
     $login->logout();
-    header('Location: login.php');
+    header('Location: ../../2_User/UserBackend/login.php');
     exit();
 }
 
@@ -156,6 +156,21 @@ $sql = "SELECT r.*, GROUP_CONCAT(ri.image_path) as images
 $stmt = $pdo->query($sql);
 $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Add this function to format image paths
+function formatImagePath($image) {
+    if (empty($image)) {
+        return '../../3_Images/cat-user.png'; // Default image
+    }
+    
+    // If it's a full path, return as is
+    if (strpos($image, '../../5_Uploads/') === 0) {
+        return $image;
+    }
+    
+    // Otherwise, prepend the uploads directory path
+    return '../../5_Uploads/' . basename($image);
+}
+
 $username = $_SESSION['username'] ?? 'Guest';
 $fullname = $_SESSION['fullname'] ?? 'Guest User';
 ?>
@@ -283,14 +298,15 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                                 <?php 
                                                 $images = explode(',', $report['images']);
                                                 if (!empty($images[0])): 
+                                                    $displayImage = formatImagePath($images[0]);
                                                 ?>
                                                     <div class="image-container position-relative">
                                                         <?php if ($report['status'] === 'found'): ?>
                                                             <a href="#" onclick="showFoundPopup(); return false;">
                                                         <?php else: ?>
-                                                            <a href="3.2_viewMore.php?id=<?php echo $report['id']; ?>">
+                                                            <a href="3.2_view_more.php?id=<?php echo $report['id']; ?>">
                                                         <?php endif; ?>
-                                                            <img src="<?= htmlspecialchars($images[0]) ?>" 
+                                                            <img src="<?= htmlspecialchars($displayImage) ?>" 
                                                                  class="card-img-top" 
                                                                  alt="<?= htmlspecialchars($report['cat_name']) ?>"
                                                                  style="height: 200px; object-fit: cover; cursor: pointer;">
@@ -310,7 +326,7 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                                     </p>
                                                     <div class="d-flex justify-content-between align-items-center">
                                                         <div class="d-flex gap-1">
-                                                            <a href="viewMore.php?id=<?php echo $report['id']; ?>" 
+                                                            <a href="3.2_view_more.php?id=<?php echo $report['id']; ?>" 
                                                                class="btn btn-outline-primary btn-sm rounded-pill px-2 py-1" style="font-size: 0.9rem;">
                                                                 <i class="fas fa-arrow-right"></i> View More
                                                             </a>

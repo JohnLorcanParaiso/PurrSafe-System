@@ -7,7 +7,7 @@ ini_set('display_errors', 1);
 
 $login = new Login();
 if (!$login->isLoggedIn()) {
-    header('Location: login.php');
+    header('Location: ../../2_User/UserBackend/login.php');
     exit();
 }
 

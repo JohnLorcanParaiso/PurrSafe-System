@@ -3,14 +3,14 @@ require_once '../../2_User/UserBackend/userAuth.php';
 
 $login = new Login();
 if (!$login->isLoggedIn()) {
-    header('Location: login.php');
+    header('Location: ../../2_User/UserBackend/login.php');
     exit();
 }
 
 //Logout
 if (isset($_POST['action']) && $_POST['action'] === 'logout') {
     $login->logout();
-    header('Location: login.php');
+    header('Location: ../../2_User/UserBackend/login.php');
     exit();
 }
 
@@ -62,27 +62,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 $username = $_SESSION['username'] ?? 'Guest';
 $fullname = $_SESSION['fullname'] ?? 'Guest User';
 
+// Add this function to format image paths
+function formatImagePath($image) {
+    if (empty($image)) {
+        return '../../3_Images/cat-user.png'; // Default image
+    }
+    
+    // If it's a full path, return as is
+    if (strpos($image, '../../5_Uploads/') === 0) {
+        return $image;
+    }
+    
+    // Otherwise, prepend the uploads directory path
+    return '../../5_Uploads/' . basename($image);
+}
+
 class DashboardData extends Database {
     public function getRecentReports($limit = 5) {
         try {
-            $stmt = $this->conn->prepare("SELECT name, breed, gender, color FROM reports ORDER BY created_at DESC LIMIT ?");
-            $stmt->bind_param("i", $limit);
-            $stmt->execute();
-            return $stmt->get_result();
-        } catch (Exception $e) {
-            return false;
-        }
-    }
-
-    public function getLostCats($limit = 5) {
-        try {
-            $stmt = $this->conn->prepare(
-                "SELECT l.id, l.cat_name, l.cat_image, u.fullname as owner_name 
-                 FROM lost_cats l 
-                 JOIN users u ON l.user_id = u.id 
-                 ORDER BY l.created_at DESC 
-                 LIMIT ?"
-            );
+            $stmt = $this->conn->prepare("
+                SELECT r.* 
+                FROM lost_reports r 
+                ORDER BY r.created_at DESC 
+                LIMIT ?
+            ");
             $stmt->bind_param("i", $limit);
             $stmt->execute();
             return $stmt->get_result();
@@ -117,7 +120,6 @@ class DashboardData extends Database {
 
 $dashboard = new DashboardData();
 $result = $dashboard->getRecentReports();
-$lostCats = $dashboard->getLostCats();
 $cat_profile_count = $dashboard->getCatProfileCount();
 $report_count = $dashboard->getReportCount();
 ?>
@@ -214,45 +216,54 @@ $report_count = $dashboard->getReportCount();
         </header>
 
         <main class="main-content">
-            <div class="row g-4 mb-4">
+            <!-- Updated welcome message with better styling -->
+            <div class="text-center mb-3">
+                <h2 class="h3 fw-bold mb-1">Welcome back, <?php echo htmlspecialchars($fullname); ?>! 👋</h2>
+                <p class="text-muted small mb-0">Track and manage your cat reports all in one place</p>
+                <div class="border-bottom w-25 mx-auto my-2"></div>
+            </div>
+
+            <div class="row g-3 mb-3">
                 <div class="col-md-6">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body text-center p-5">
-                            <h1 class="display-3 mb-3"><?php echo $cat_profile_count; ?></h1>
-                            <h3 class="text-muted h4">Found Cat</h3>
+                    <div class="card shadow-sm">
+                        <div class="card-body text-center p-3">
+                            <i class="fas fa-cat mb-2" style="font-size: 1.8rem; color: #6c757d;"></i>
+                            <h1 class="h2 mb-1"><?php echo $cat_profile_count; ?></h1>
+                            <h3 class="text-muted h6 mb-0">Found Cat</h3>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body text-center p-5">
-                            <h1 class="display-3 mb-3"><?php echo $report_count; ?></h1>
-                            <h3 class="text-muted h4">Missing Cat</h3>
+                    <div class="card shadow-sm">
+                        <div class="card-body text-center p-3">
+                            <i class="fas fa-search mb-2" style="font-size: 1.8rem; color: #6c757d;"></i>
+                            <h1 class="h2 mb-1"><?php echo $report_count; ?></h1>
+                            <h3 class="text-muted h6 mb-0">Missing Cat</h3>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="row g-4">
-                <div class="col-md-8">
+            <div class="row g-3">
+                <div class="col-12">
                     <div class="card shadow-sm">
-                        <div class="card-header bg-white py-3">
+                        <div class="card-header bg-white py-2">
                             <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">Report Lost and Found Cat</h5>
+                                <h5 class="mb-0 h6">Report Lost and Found Cat</h5>
                                 <form method="POST" class="m-0">
-                                    <button type="submit" name="action" value="view" class="btn btn-custom">View All</button>
+                                    <button type="submit" name="action" value="view" class="btn btn-custom btn-sm">View All</button>
                                 </form>
                             </div>
                         </div>
                         <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-hover mb-0">
+                            <div class="table-responsive" style="max-height: calc(100vh - 400px);">
+                                <table class="table table-hover table-sm mb-0">
                                     <thead>
                                         <tr>
                                             <th class="px-4">Name</th>
                                             <th>Breed</th>
-                                            <th>Gender</th>
-                                            <th>Color</th>
+                                            <th>Last Seen</th>
+                                            <th>Status</th>
                                             <th class="text-end px-4">Option</th>
                                         </tr>
                                     </thead>
@@ -262,15 +273,19 @@ $report_count = $dashboard->getReportCount();
                                             while($row = $result->fetch_assoc()) {
                                                 ?>
                                                 <tr>
-                                                    <td class="px-4"><?php echo htmlspecialchars($row['name']); ?></td>
+                                                    <td class="px-4"><?php echo htmlspecialchars($row['cat_name']); ?></td>
                                                     <td><?php echo htmlspecialchars($row['breed']); ?></td>
-                                                    <td><?php echo htmlspecialchars($row['gender']); ?></td>
-                                                    <td><?php echo htmlspecialchars($row['color']); ?></td>
+                                                    <td><?php echo htmlspecialchars($row['last_seen_date']); ?></td>
+                                                    <td>
+                                                        <?php if ($row['status'] === 'found'): ?>
+                                                            <span class="badge bg-success">Found</span>
+                                                        <?php else: ?>
+                                                            <span class="badge bg-warning">Missing</span>
+                                                        <?php endif; ?>
+                                                    </td>
                                                     <td class="text-end px-4">
-                                                        <form method="POST" class="m-0 d-inline">
-                                                            <input type="hidden" name="report_id" value="<?php echo $row['id']; ?>">
-                                                            <button type="submit" name="action" value="view_report" class="btn btn-custom btn-sm">View</button>
-                                                        </form>
+                                                        <a href="3.2_view_more.php?id=<?php echo $row['id']; ?>" 
+                                                           class="btn btn-custom btn-sm">View</a>
                                                     </td>
                                                 </tr>
                                                 <?php
@@ -283,62 +298,6 @@ $report_count = $dashboard->getReportCount();
                                             <?php
                                         }
                                         ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-white py-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">Owner's Lost Cat Info</h5>
-                                <form method="POST" class="m-0">
-                                    <button type="submit" name="action" value="view_lost" class="btn btn-custom">View All</button>
-                                </form>
-                            </div>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-hover mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th class="px-4">Cat</th>
-                                            <th>Name</th>
-                                            <th>Owner</th>
-                                            <th class="text-end px-4">Option</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php 
-                                        if ($lostCats && $lostCats->num_rows > 0):
-                                            while($cat = $lostCats->fetch_assoc()):
-                                                $catImage = !empty($cat['cat_image']) ? $cat['cat_image'] : 'images/default-cat.png';
-                                        ?>
-                                            <tr>
-                                                <td class="px-4">
-                                                    <img src="<?php echo htmlspecialchars($catImage); ?>" alt="cat" 
-                                                         style="width: 30px; height: 30px; border-radius: 50%;">
-                                                </td>
-                                                <td><?php echo htmlspecialchars($cat['cat_name']); ?></td>
-                                                <td><?php echo htmlspecialchars($cat['owner_name']); ?></td>
-                                                <td class="text-end px-4">
-                                                    <form method="POST" class="m-0">
-                                                        <input type="hidden" name="lost_cat_id" value="<?php echo $cat['id']; ?>">
-                                                        <button type="submit" name="action" value="view_lost_cat" 
-                                                                class="btn btn-custom btn-sm">View</button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        <?php 
-                                            endwhile;
-                                        else:
-                                        ?>
-                                            <tr>
-                                                <td colspan="4" class="text-center">No lost cats reported</td>
-                                            </tr>
-                                        <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>

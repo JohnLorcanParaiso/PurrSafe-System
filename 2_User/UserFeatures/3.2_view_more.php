@@ -4,14 +4,14 @@ require_once '../../2_User/UserBackend/db.php';
 
 $login = new Login();
 if (!$login->isLoggedIn()) {
-    header('Location: login.php');
+    header('Location: ../../2_User/UserBackend/login.php');
     exit();
 }
 
 $report_id = isset($_GET['id']) ? $_GET['id'] : null;
 
 if (!$report_id) {
-    header('Location: view.php');
+    header('Location: ../../2_User/UserBackend/login.php');
     exit();
 }
 
@@ -20,30 +20,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     switch ($action) {
         case 'dashboard':
-            header("Location: dashboard.php");
+            header("Location: 1_user_dashboard.php");
             exit();
         case 'create':
-            header("Location: create.php");
+            header("Location: 2.1_create_new_report.php");
             exit();
         case 'view':
-            header("Location: view.php");
+            header("Location: 3.1_view_reports.php");
             exit();
         case 'myProfile':
-            header("Location: profile.php");
+            header("Location: 4.1_my_profile.php");
             exit();
         case 'help':
-            header("Location: help.php");
+            header("Location: 5_help_and_support.php");
             exit();
         case 'settings':
-            header("Location: settings.php");
+            header("Location: 6_settings.php");
             exit();
         case 'search':
             $search_query = isset($_POST['search']) ? $_POST['search'] : '';
-            header("Location: search.php?q=" . urlencode($search_query));
+            header("Location: 3.1_view_reports.php?q=" . urlencode($search_query));
             exit();
         case 'logout':
             $login->logout();
-            header('Location: login.php');
+            header('Location: ../UserAuth/login.php');
             exit();
     }
 }
@@ -60,8 +60,22 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute([$report_id]);
 $report = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$images = $report['images'] ? explode(',', $report['images']) : [];
+function formatImagePath($image) {
+    if (empty($image)) {
+        return '../../3_Images/cat-user.png'; // Default image if none available
+    }
+    
+    // If it's already a full path starting with ../../5_Uploads/, return as is
+    if (strpos($image, '../../5_Uploads/') === 0) {
+        return $image;
+    }
+    
+    // If it's just a filename or has a different path, ensure it points to uploads
+    return '../../5_Uploads/' . basename($image);
+}
 
+$images = $report['images'] ? explode(',', $report['images']) : [];
+$formatted_images = array_map('formatImagePath', $images);
 
 date_default_timezone_set('Asia/Singapore'); 
 ?>
@@ -75,7 +89,7 @@ date_default_timezone_set('Asia/Singapore');
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="../../4_Styles/user_style.css">
 </head>
 <body>
     <div class="side-menu">
@@ -137,7 +151,7 @@ date_default_timezone_set('Asia/Singapore');
 
     <div class="container-custom">
         <div class="mb-4">
-            <a href="view.php" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            <a href="3.1_view_reports.php" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
                 <i class="fas fa-arrow-left me-2"></i>Back to Reports
             </a>
         </div>
@@ -215,19 +229,19 @@ date_default_timezone_set('Asia/Singapore');
                             </h5>
                             <div class="card border-0 bg-light">
                                 <div class="card-body">
-                                    <?php if (!empty($images)): ?>
+                                    <?php if (!empty($formatted_images)): ?>
                                         <div id="reportImageCarousel" class="carousel slide rounded overflow-hidden" data-bs-ride="carousel">
                                             <div class="carousel-inner">
-                                                <?php foreach ($images as $index => $image): ?>
+                                                <?php foreach ($formatted_images as $index => $image): ?>
                                                     <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
-                                                        <img src="<?= htmlspecialchars($image) ?>" 
+                                                        <img src="<?= htmlspecialchars(formatImagePath($image)) ?>" 
                                                              class="d-block w-100" 
                                                              alt="<?= htmlspecialchars($report['cat_name']) ?>"
                                                              style="height: 300px; object-fit: cover;">
                                                     </div>
                                                 <?php endforeach; ?>
                                             </div>
-                                            <?php if (count($images) > 1): ?>
+                                            <?php if (count($formatted_images) > 1): ?>
                                                 <button class="carousel-control-prev" type="button" data-bs-target="#reportImageCarousel" data-bs-slide="prev">
                                                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                                     <span class="visually-hidden">Previous</span>

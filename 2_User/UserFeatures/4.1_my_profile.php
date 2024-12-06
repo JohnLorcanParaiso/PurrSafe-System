@@ -4,7 +4,13 @@ require_once '../../2_User/UserBackend/db.php';
 
 $login = new Login();
 if (!$login->isLoggedIn()) {
-    header('Location: login.php');
+    header('Location: ../../2_User/UserBackend/login.php');
+    exit();
+}
+
+if (isset($_POST['action']) && $_POST['action'] === 'logout') {
+    $login->logout();
+    header('Location: ../../2_User/UserBackend/login.php');
     exit();
 }
 
@@ -48,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         case 'logout':
             $login->logout();
-            header("Location: login.php");
+            header("Location: ../../2_User/UserBackend/login.php");
             exit();
         
         // Handle delete report action
@@ -195,9 +201,13 @@ $userReports = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="col-md-3">
                 <div class="card shadow-sm mb-4">
                     <div class="card-body text-center">
-                        <img src="../../3_Images/cat-user.png" alt="Profile Picture" class="rounded-circle mb-3" style="width: 80px; height: 80px;">
-                        <h5 class="mb-1"><?php echo htmlspecialchars($fullname); ?></h5>
-                        <p class="text-muted mb-0">@<?php echo htmlspecialchars($username); ?></p>
+                        <?php
+                        $profileImage = isset($user['profile_image']) ? formatImagePath($user['profile_image']) : '../../3_Images/cat-user.png';
+                        ?>
+                        <img src="<?= htmlspecialchars($profileImage) ?>" 
+                             alt="Profile Picture" 
+                             class="rounded-circle mb-3" 
+                             style="width: 80px; height: 80px; object-fit: cover;">
                     </div>
                 </div>
 
@@ -259,10 +269,20 @@ $userReports = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     $images = explode(',', $report['images']);
                                                     if (!empty($images[0])): 
                                                     ?>
-                                                        <img src="<?= htmlspecialchars($images[0]) ?>" 
-                                                             alt="<?= htmlspecialchars($report['cat_name']) ?>" 
-                                                             class="rounded" 
-                                                             style="width: 80px; height: 80px; object-fit: cover;">
+                                                        <div class="report-images">
+                                                            <?php foreach ($images as $index => $image): 
+                                                                if ($index < 3): // Show up to 3 images ?>
+                                                                    <img src="<?= htmlspecialchars($image) ?>" 
+                                                                         alt="<?= htmlspecialchars($report['cat_name']) ?>" 
+                                                                         class="rounded report-thumbnail"
+                                                                         onclick="openImageModal('<?= htmlspecialchars($image) ?>')"
+                                                                         style="width: 80px; height: 80px; object-fit: cover; cursor: pointer; margin: 2px;">
+                                                                <?php endif; 
+                                                                if ($index === 3): ?>
+                                                                    <div class="more-images">+<?= count($images) - 3 ?></div>
+                                                                <?php endif; ?>
+                                                            <?php endforeach; ?>
+                                                        </div>
                                                     <?php else: ?>
                                                         <div class="rounded bg-light d-flex align-items-center justify-content-center" 
                                                              style="width: 80px; height: 80px;">
@@ -306,6 +326,19 @@ $userReports = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </main>
 </div>
 
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" alt="Cat Image" style="max-width: 100%; max-height: 80vh;">
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
 <script>
@@ -320,6 +353,13 @@ $userReports = $stmt->fetchAll(PDO::FETCH_ASSOC);
             document.body.appendChild(form);
             form.submit();
         }
+    }
+
+    function openImageModal(imageSrc) {
+        const modalImage = document.getElementById('modalImage');
+        modalImage.src = imageSrc;
+        const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+        imageModal.show();
     }
 </script>
 </body>
