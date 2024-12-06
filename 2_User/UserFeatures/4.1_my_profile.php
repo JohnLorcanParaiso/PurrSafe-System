@@ -371,6 +371,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
                                     <p class="text-muted mb-0"><?= htmlspecialchars($email) ?></p>
                                 </div>
                             </div>
+<<<<<<< HEAD
                         </div>
                     </div>
 
@@ -403,6 +404,99 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
                                                 <th>Created</th>
                                                 <th>Last Edited</th>
                                                 <th>Actions</th>
+=======
+                        <?php else: ?>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Cat</th>
+                                            <th>Details</th>
+                                            <th>Status</th>
+                                            <th>Created</th>
+                                            <th>Last Edited</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($userReports as $report): ?>
+                                            <tr>
+                                                <td style="width: 100px;">
+                                                    <?php 
+                                                    $images = explode(',', $report['images']);
+                                                    if (!empty($images[0])): 
+                                                    ?>
+                                                        <div class="report-images">
+                                                            <?php foreach ($images as $index => $image): 
+                                                                if ($index < 3): // Show up to 3 images ?>
+                                                                    <img src="<?= htmlspecialchars($image) ?>" 
+                                                                         alt="<?= htmlspecialchars($report['cat_name']) ?>" 
+                                                                         class="rounded report-thumbnail"
+                                                                         onclick="openImageModal('<?= htmlspecialchars($image) ?>')"
+                                                                         style="width: 80px; height: 80px; object-fit: cover; cursor: pointer; margin: 2px;">
+                                                                <?php endif; 
+                                                                if ($index === 3): ?>
+                                                                    <div class="more-images">+<?= count($images) - 3 ?></div>
+                                                                <?php endif; ?>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <div class="rounded bg-light d-flex align-items-center justify-content-center" 
+                                                             style="width: 80px; height: 80px;">
+                                                            <i class="fas fa-cat text-muted" style="font-size: 2rem;"></i>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td>
+                                                    <h6 class="mb-1"><?= htmlspecialchars($report['cat_name']) ?></h6>
+                                                    <small class="text-muted"><?= htmlspecialchars($report['breed']) ?></small>
+                                                </td>
+                                                <td>
+                                                    <?php if (isset($report['status']) && $report['status'] === 'found'): ?>
+                                                        <span class="badge bg-success">Found</span>
+                                                    <?php else: ?>
+                                                        <span class="badge bg-warning">Lost</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td>
+                                                    <small class="text-muted">
+                                                        <?= date('M j, Y, g:i A', strtotime($report['created_at'])) ?>
+                                                    </small>
+                                                </td>
+                                                <td>
+                                                    <?php if ($report['edited_at']): ?>
+                                                        <small class="text-muted">
+                                                            <?= date('M j, Y, g:i A', strtotime($report['edited_at'])) ?>
+                                                            <span class="badge text-white" style="background-color: #6f42c1;">Edited</span>
+                                                        </small>
+                                                    <?php else: ?>
+                                                        <small class="text-muted">-</small>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group">
+                                                        <form method="POST" class="d-inline">
+                                                            <input type="hidden" name="action" value="view_details">
+                                                            <input type="hidden" name="report_id" value="<?= $report['id'] ?>">
+                                                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+                                                        </form>
+                                                        
+                                                        <form method="POST" class="d-inline">
+                                                            <input type="hidden" name="action" value="edit">
+                                                            <input type="hidden" name="report_id" value="<?= (int)$report['id'] ?>">
+                                                            <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                                                <i class="fas fa-edit"></i>
+                                                            </button>
+                                                        </form>
+                                                        
+                                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDelete(<?= $report['id'] ?>)">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+>>>>>>> 256adb81c82fa779fef14d64a3bd7b54f2a4acb0
                                             </tr>
                                         </thead>
                                         <tbody>

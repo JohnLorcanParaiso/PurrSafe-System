@@ -196,7 +196,11 @@ $olderNotifications = array_slice($allNotifications, 5);
                 <li><h6 class="dropdown-header text-success" style="font-size: 14px;">Found Cat Reports</h6></li>
                 <?php foreach (array_slice($foundReports, 0, 3) as $report): ?>
                     <li>
+<<<<<<< HEAD
                         <a class="dropdown-item notification-item" href="3.3_found_reports.php?id=<?php echo $report['id']; ?>">
+=======
+                        <a class="dropdown-item notification-item" href="3.3_found_reports.php?id=<?php echo $report['id']; ?>" style="font-size: 14px; padding: 10px 15px;">
+>>>>>>> 256adb81c82fa779fef14d64a3bd7b54f2a4acb0
                             <div class="d-flex align-items-center">
                                 <div class="flex-shrink-0">
                                     <i class="bi bi-check-circle text-success notification-icon" style="font-size: 50px;"></i>

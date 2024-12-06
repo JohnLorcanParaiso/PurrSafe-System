@@ -169,9 +169,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
+<<<<<<< HEAD
 $sql = "SELECT r.*, u.fullname as reporter_name, u.email as reporter_email, 
         u.profile_image as profile_picture, GROUP_CONCAT(ri.image_path) as images, 
         r.edited_at 
+=======
+$sql = "SELECT r.*, u.fullname as reporter_name, u.email as reporter_email, u.profile_pic as profile_picture, 
+        GROUP_CONCAT(ri.image_path) as images, r.edited_at 
+>>>>>>> 256adb81c82fa779fef14d64a3bd7b54f2a4acb0
         FROM lost_reports r 
         LEFT JOIN report_images ri ON r.id = ri.report_id 
         LEFT JOIN users u ON r.user_id = u.id 
@@ -300,6 +305,7 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
             filter: brightness(0.9);
         }
 
+<<<<<<< HEAD
         /* Add these new styles */
         .btn-gold {
             background: linear-gradient(145deg, #ffd700, #ffb347);
@@ -433,6 +439,10 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
         .btn-silver:hover::before {
             animation: shine 1.5s infinite;
             opacity: 1;
+=======
+        .loading-text {
+            transition: opacity 0.2s ease-in-out;
+>>>>>>> 256adb81c82fa779fef14d64a3bd7b54f2a4acb0
         }
     </style>
 </head>
@@ -546,6 +556,10 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                                     $displayImage = formatImagePath($images[0]);
                                                 ?>
                                                     <div class="image-container">
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 256adb81c82fa779fef14d64a3bd7b54f2a4acb0
                                                         <img src="<?= htmlspecialchars($displayImage) ?>" 
                                                              class="card-img-top <?= $report['status'] === 'found' ? 'found-image' : '' ?>" 
                                                              alt="<?= htmlspecialchars($report['cat_name']) ?>"
@@ -562,11 +576,31 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                                                 <?= getRandomMessage(false) ?>
                                                                 <i class="fas fa-paw"></i>
                                                             </div>
+<<<<<<< HEAD
+=======
+=======
+                                                        <?php if ($report['status'] === 'found'): ?>
+                                                            <div class="found-marker">FOUND</div>
+                                                            <img src="<?= htmlspecialchars($displayImage) ?>" 
+                                                                 class="card-img-top" 
+                                                                 alt="<?= htmlspecialchars($report['cat_name']) ?>"
+                                                                 style="height: 200px; object-fit: cover; cursor: pointer;"
+                                                                 onclick="showFoundPopup('<?= htmlspecialchars($report['cat_name']) ?>')">
+                                                        <?php else: ?>
+                                                            <a href="3.2_view_more.php?id=<?php echo $report['id']; ?>">
+                                                                <img src="<?= htmlspecialchars($displayImage) ?>" 
+                                                                     class="card-img-top" 
+                                                                     alt="<?= htmlspecialchars($report['cat_name']) ?>"
+                                                                     style="height: 200px; object-fit: cover; cursor: pointer;">
+                                                            </a>
+>>>>>>> ab225be78c74039bbb999b75a6fb2c305c03f76d
+>>>>>>> 256adb81c82fa779fef14d64a3bd7b54f2a4acb0
                                                         <?php endif; ?>
                                                     </div>
                                                 <?php endif; ?>
                                                 
                                                 <div class="card-body">
+<<<<<<< HEAD
     <h5 class="card-title d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center gap-2">
             <?= htmlspecialchars($report['cat_name']) ?>
@@ -600,6 +634,33 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                     </div>
                 </span>
             <?php endif; ?>
+=======
+<<<<<<< HEAD
+    <h5 class="card-title d-flex justify-content-between align-items-center">
+        <?= htmlspecialchars($report['cat_name']) ?>
+        <div>
+        <?php if ($report['user_id'] == $_SESSION['user_id']): ?>
+    <span class="badge bg-info d-flex align-items-center gap-2" style="font-size: 0.8rem; padding: 8px 12px;">
+        Owner: <?= htmlspecialchars($_SESSION['fullname']) ?>
+        <div style="margin-right: -20px; margin-top: -20px; margin-bottom: -20px;">
+            <img src="<?= !empty($report['profile_picture']) ? '../../6_Profile_Pictures/' . htmlspecialchars($report['profile_picture']) : '../../3_Images/cat-user.png' ?>" 
+                 alt="Profile" 
+                 class="rounded-circle" 
+                 style="width: 70px; height: 70px; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        </div>
+    </span>
+<?php else: ?>
+    <span class="badge bg-warning text-dark d-flex align-items-center gap-2" style="font-size: 0.8rem; padding: 8px 12px;">
+        Owner: <?= htmlspecialchars($report['reporter_name']) ?>
+        <div style="margin-right: -20px; margin-top: -20px; margin-bottom: -20px;">
+            <img src="<?= !empty($report['profile_picture']) ? '../../6_Profile_Pictures/' . htmlspecialchars($report['profile_picture']) : '../../3_Images/cat-user.png' ?>" 
+                 alt="Profile" 
+                 class="rounded-circle" 
+                 style="width: 70px; height: 70px; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        </div>
+    </span>
+<?php endif; ?>
+>>>>>>> 256adb81c82fa779fef14d64a3bd7b54f2a4acb0
         </div>
     </h5>
     <p class="card-text">
@@ -614,6 +675,7 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
             </a>
             <?php if ($report['status'] === 'found'): ?>
                 <a href="#" 
+<<<<<<< HEAD
                    class="btn btn-found-already btn-sm rounded-pill px-3 py-1" 
                    style="font-size: 0.9rem;"
                    onclick="showFoundPopup('<?= htmlspecialchars($report['cat_name']) ?>')">
@@ -622,6 +684,16 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
             <?php elseif ($report['user_id'] != $_SESSION['user_id']): ?>
                 <a href="#" 
                    class="btn btn-silver btn-sm rounded-pill px-3 py-1" 
+=======
+                   class="btn btn-outline-secondary btn-sm rounded-pill px-2 py-1" 
+                   style="font-size: 0.9rem;"
+                   onclick="showFoundPopup('<?= htmlspecialchars($report['cat_name']) ?>')">
+                    <i class="fas fa-check-circle"></i> Found
+                </a>
+            <?php elseif ($report['user_id'] != $_SESSION['user_id']): ?>
+                <a href="#" 
+                   class="btn btn-outline-primary btn-sm rounded-pill px-2 py-1" 
+>>>>>>> 256adb81c82fa779fef14d64a3bd7b54f2a4acb0
                    style="font-size: 0.9rem;"
                    onclick="event.preventDefault(); showFoundForm('<?= $report['id'] ?>');">
                     <i class="fas fa-exclamation-circle"></i> Found
@@ -640,6 +712,56 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
         </div>
     </div>
 </div>
+<<<<<<< HEAD
+=======
+=======
+                                                    <h5 
+                                                        class="card-title d-flex justify-content-between align-items-center">
+                                                        <?= htmlspecialchars($report['cat_name']) ?>
+                                                        <?php if ($report['user_id'] == $_SESSION['user_id']): ?>
+                                                            <span class="badge bg-info" style="font-size: 0.7rem;">Your Cat</span>
+                                                        <?php else: ?>
+                                                            <span class="badge bg-warning text-dark" style="font-size: 0.7rem;">
+                                                                Reported by: <?= htmlspecialchars($report['reporter_name']) ?>
+                                                            </span>
+                                                        <?php endif; ?>
+                                                    </h5>
+                                                    <p class="card-text">
+                                                        <strong>Breed:</strong> <?= htmlspecialchars($report['breed']) ?><br>
+                                                        <strong>Last Seen:</strong> <?= htmlspecialchars($report['last_seen_date']) ?>
+                                                    </p>
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div class="d-flex gap-1">
+                                                            <a href="3.2_view_more.php?id=<?php echo $report['id']; ?>" 
+                                                               class="btn btn-outline-primary btn-sm rounded-pill px-2 py-1" style="font-size: 0.9rem;">
+                                                                <i class="fas fa-arrow-right"></i> View More
+                                                            </a>
+                                                            <?php if ($report['status'] === 'found'): ?>
+                                                                <a href="#" 
+                                                                   class="btn btn-outline-secondary btn-sm rounded-pill px-2 py-1" 
+                                                                   style="font-size: 0.9rem;"
+                                                                   onclick="showFoundPopup('<?= htmlspecialchars($report['cat_name']) ?>')">
+                                                                    <i class="fas fa-check-circle"></i> Found
+                                                                </a>
+                                                            <?php elseif ($report['user_id'] != $_SESSION['user_id']): ?>
+                                                                <a href="#" 
+                                                                   class="btn btn-outline-primary btn-sm rounded-pill px-2 py-1" 
+                                                                   style="font-size: 0.9rem;"
+                                                                   onclick="event.preventDefault(); showFoundForm('<?= $report['id'] ?>');">
+                                                                    <i class="fas fa-exclamation-circle"></i> Found
+                                                                </a>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                        <small class="text-muted">
+                                                            <?php
+                                                            $created = new DateTime($report['created_at']);
+                                                            echo $created->format('M j, Y g:i A');
+                                                            ?>
+                                                        </small>
+                                                    </div>
+                                                </div>
+>>>>>>> ab225be78c74039bbb999b75a6fb2c305c03f76d
+>>>>>>> 256adb81c82fa779fef14d64a3bd7b54f2a4acb0
                                             </div>
                                         </div>
                                     <?php endforeach; ?>

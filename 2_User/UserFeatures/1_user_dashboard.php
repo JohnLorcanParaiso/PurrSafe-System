@@ -87,11 +87,15 @@ class DashboardData extends Database {
     public function getRecentReports($limit = 5) {
         try {
             $stmt = $this->conn->prepare("
+<<<<<<< HEAD
                 SELECT r.*, u.fullname as reporter_name, 
                        CASE 
                            WHEN r.edited_at IS NOT NULL THEN 1
                            ELSE 0
                        END as is_edited
+=======
+                SELECT r.*, u.fullname as reporter_name, r.edited_at 
+>>>>>>> 256adb81c82fa779fef14d64a3bd7b54f2a4acb0
                 FROM lost_reports r 
                 LEFT JOIN users u ON r.user_id = u.id
                 ORDER BY r.created_at DESC 
@@ -250,12 +254,40 @@ $found_cat_count = $dashboard->getFoundCatCount();
         </header>
 
         <main class="main-content">
+<<<<<<< HEAD
             <!-- Welcome Section with Animation -->
             <div class="welcome-section text-center mb-4 p-4 bg-white rounded shadow-sm animate__animated animate__fadeIn">
                 <div class="user-greeting">
                     <h2 class="h3 fw-bold mb-2">Welcome back, <?php echo htmlspecialchars($fullname); ?>!</h2>
                     <p class="text-muted">Track and manage your cat reports all in one place</p>
                     <div class="border-bottom w-25 mx-auto my-3"></div>
+=======
+            <!-- Updated welcome message with better styling -->
+            <div class="text-center mb-3">
+                <h2 class="h3 fw-bold mb-1">Welcome back, <?php echo htmlspecialchars($fullname); ?>! 👋</h2>
+                <p class="text-muted small mb-0">Track and manage your cat reports all in one place</p>
+                <div class="border-bottom w-25 mx-auto my-2"></div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <div class="card shadow-sm">
+                        <div class="card-body text-center p-3">
+                            <i class="fas fa-check-circle mb-2" style="font-size: 1.8rem; color: #28a745;"></i>
+                            <h1 class="h2 mb-1"><?php echo $found_cat_count; ?></h1>
+                            <h3 class="text-muted h6 mb-0">Found Cats</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow-sm">
+                        <div class="card-body text-center p-3">
+                            <i class="fas fa-search mb-2" style="font-size: 1.8rem; color: #ffc107;"></i>
+                            <h1 class="h2 mb-1"><?php echo $report_count; ?></h1>
+                            <h3 class="text-muted h6 mb-0">Missing Cats</h3>
+                        </div>
+                    </div>
+>>>>>>> 256adb81c82fa779fef14d64a3bd7b54f2a4acb0
                 </div>
             </div>
 
@@ -273,6 +305,7 @@ $found_cat_count = $dashboard->getFoundCatCount();
                                 <div class="progress-bar bg-success" style="width: 100%"></div>
                             </div>
                         </div>
+<<<<<<< HEAD
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -342,6 +375,37 @@ $found_cat_count = $dashboard->getFoundCatCount();
                                                             <img src="<?= formatImagePath($row['image_path']) ?>" 
                                                                  class="rounded-circle" 
                                                                  style="width: 40px; height: 40px; object-fit: cover;">
+=======
+                        <div class="card-body p-0">
+                            <div class="table-responsive" style="max-height: calc(100vh - 400px);">
+                                <table class="table table-hover table-sm mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="px-4">Name</th>
+                                            <th>Breed</th>
+                                            <th>Last Seen</th>
+                                            <th>Status</th>
+                                            <th class="text-end px-4">Option</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php 
+                                        if ($result && $result->num_rows > 0) {
+                                            while($row = $result->fetch_assoc()) {
+                                                ?>
+                                                <tr>                                            
+                                                    <td>
+                                                        <?= htmlspecialchars($row['cat_name']) ?>
+                                                        <?php if (!empty($row['edited_at'])): ?>
+                                                            <span class="badge text-white" style="background-color: #6f42c1; font-size: 0.65rem;">Edited</span>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td><?= htmlspecialchars($row['breed']) ?></td>
+                                                    <td><?= htmlspecialchars($row['last_seen_date']) ?></td>
+                                                    <td>
+                                                        <?php if ($row['status'] === 'found'): ?>
+                                                            <span class="badge bg-success">Found</span>
+>>>>>>> 256adb81c82fa779fef14d64a3bd7b54f2a4acb0
                                                         <?php else: ?>
                                                             <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" 
                                                                  style="width: 40px; height: 40px;">

@@ -398,6 +398,7 @@ $support_status = isSupportAvailable();
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
     <script>
     function updateSupportStatus() {
+<<<<<<< HEAD
         const now = new Date();
         const hours = now.getHours();
         const minutes = now.getMinutes();
@@ -430,6 +431,29 @@ $support_status = isSupportAvailable();
     // Initial update
     updateSupportStatus();
 
+=======
+        fetch('check_support_status.php')
+            .then(response => response.json())
+            .then(data => {
+                const statusBadge = document.querySelector('.support-status-badge');
+                switch(data.status) {
+                    case 'open':
+                        statusBadge.className = 'badge bg-success rounded-pill support-status-badge';
+                        statusBadge.textContent = 'Open Now';
+                        break;
+                    case 'closing_soon':
+                        statusBadge.className = 'badge bg-warning rounded-pill support-status-badge';
+                        statusBadge.textContent = 'About to Close';
+                        break;
+                    case 'closed':
+                        statusBadge.className = 'badge bg-danger rounded-pill support-status-badge';
+                        statusBadge.textContent = 'Closed';
+                        break;
+                }
+            });
+    }
+
+>>>>>>> 256adb81c82fa779fef14d64a3bd7b54f2a4acb0
     // Update status every minute
     setInterval(updateSupportStatus, 60000);
     </script>
