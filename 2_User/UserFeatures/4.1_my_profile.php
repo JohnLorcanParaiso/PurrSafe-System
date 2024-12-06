@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         case 'edit':
             if (isset($_POST['report_id'])) {
-                header("Location: 4.2_edit_report.php?id=" . $_POST['report_id']);
+                header("Location: 4.2_edit_report.php?id=" . (int)$_POST['report_id']);
                 exit();
             }
             break;
@@ -302,12 +302,22 @@ $userReports = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 </td>
                                                 <td>
                                                     <div class="btn-group">
-                                                        <a href="viewMore.php?id=<?= $report['id'] ?>" class="btn btn-sm btn-outline-primary">
-                                                            <i class="fas fa-eye"></i>
-                                                        </a>
-                                                        <a href="4.2_edit_report.php?id=<?= $report['id'] ?>" class="btn btn-sm btn-outline-secondary">
-                                                            <i class="fas fa-edit"></i>
-                                                        </a>
+                                                        <form method="POST" class="d-inline">
+                                                            <input type="hidden" name="action" value="view_details">
+                                                            <input type="hidden" name="report_id" value="<?= $report['id'] ?>">
+                                                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+                                                        </form>
+                                                        
+                                                        <form method="POST" class="d-inline">
+                                                            <input type="hidden" name="action" value="edit">
+                                                            <input type="hidden" name="report_id" value="<?= (int)$report['id'] ?>">
+                                                            <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                                                <i class="fas fa-edit"></i>
+                                                            </button>
+                                                        </form>
+                                                        
                                                         <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDelete(<?= $report['id'] ?>)">
                                                             <i class="fas fa-trash-alt"></i>
                                                         </button>
