@@ -117,6 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <button type="submit" class="btn custom-btn-primary w-100 mb-3">Login</button>
                             <div class="text-center">
                                 <p>Don't have an account? <a href="register.php" class="dashboard-blue text-decoration-none">Register here</a></p>
+                                <p>Are you an admin? <a href="../../1_Admin/AdminBackend/admin_login.php" class="dashboard-blue text-decoration-none">Admin Login</a></p>
                             </div>
                         </form>
                     </div>
