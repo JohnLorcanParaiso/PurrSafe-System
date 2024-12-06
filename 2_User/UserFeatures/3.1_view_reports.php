@@ -495,4 +495,4 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
     <img src="../../3_Images/praying-cat.gif" class="flying-cat" id="flyingCat" alt="Thank you!">
     <audio id="meowSound" src="../../7_Sounds/cute ringtone   2.mp3" preload="auto"></audio>
 </body>
-</html> 
+</html>
