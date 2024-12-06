@@ -48,8 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             header("Location: 5_help_and_support.php");
             exit();
 
-        case 'settings':
-            header("Location: 6_settings.php");
+        case 'others':
+            header("Location: 6_others.php");
             exit();
 
         case 'logout':
@@ -159,8 +159,8 @@ $userReports = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </li>
         <li class="nav-item">
             <form method="POST">
-                <button type="submit" name="action" value="settings" class="btn btn-link nav-link text-dark">
-                    <i class="fas fa-cog me-2"></i> Settings
+                <button type="submit" name="action" value="others" class="btn btn-link nav-link text-dark">
+                    <i class="fas fa-cog me-2"></i> Others
                 </button>
             </form>
         </li>

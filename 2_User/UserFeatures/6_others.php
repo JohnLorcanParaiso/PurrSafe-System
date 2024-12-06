@@ -56,12 +56,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 } catch (Exception $e) {
                     $db->rollBack();
                     $_SESSION['error'] = "Failed to delete account: " . $e->getMessage();
-                    header('Location: 6_settings.php');
+                    header('Location: 6_others.php');
                     exit();
                 }
             } else {
                 $_SESSION['error'] = "Incorrect password. Please try again.";
-                header('Location: 6_settings.php');
+                header('Location: 6_others.php');
                 exit();
             }
             
@@ -86,8 +86,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             header("Location: 5_help_and_support.php");
             exit();
 
-        case 'settings':
-            header("Location: 6_settings.php");
+        case 'others':
+            header("Location: 6_others.php");
             exit();
 
         case 'logout':
@@ -108,7 +108,7 @@ $email = $_SESSION['email'] ?? '';
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings</title>
+    <title>Others</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -157,8 +157,8 @@ $email = $_SESSION['email'] ?? '';
             </li>
             <li class="nav-item">
                 <form method="POST">
-                    <button type="submit" name="action" value="settings" class="btn btn-link nav-link text-dark active">
-                        <i class="fas fa-cog me-2"></i> Settings
+                    <button type="submit" name="action" value="others" class="btn btn-link nav-link text-dark active">
+                        <i class="fas fa-cog me-2"></i> Others
                     </button>
                 </form>
             </li>
@@ -174,7 +174,7 @@ $email = $_SESSION['email'] ?? '';
 
     <div class="container-custom">
         <header class="header-container mb-4">
-            <h2 class="mb-0">System Settings</h2>
+            <h2 class="mb-0">Others</h2>
         </header>
 
         <main class="main-content">

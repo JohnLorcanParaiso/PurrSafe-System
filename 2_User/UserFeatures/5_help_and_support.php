@@ -38,8 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             header("Location: 5_help_and_support.php");
             exit();
 
-        case 'settings':
-            header("Location: 6_settings.php");
+        case 'others':
+            header("Location: 6_others.php");
             exit();
 
         case 'search':
@@ -111,8 +111,8 @@ $username = $_SESSION['username'] ?? 'Guest';
             </li>
             <li class="nav-item">
                 <form method="POST">
-                    <button type="submit" name="action" value="settings" class="btn btn-link nav-link text-dark">
-                        <i class="fas fa-cog me-2"></i> Settings
+                    <button type="submit" name="action" value="others" class="btn btn-link nav-link text-dark">
+                        <i class="fas fa-cog me-2"></i> Others
                     </button>
                 </form>
             </li>
@@ -229,7 +229,7 @@ $username = $_SESSION['username'] ?? 'Guest';
                                         <div class="accordion-body">
                                             To delete your profile:
                                             <ol>
-                                                <li>Go to "Settings" in the side menu</li>
+                                                <li>Go to "Others" in the side menu</li>
                                                 <li>Click on "Delete Account"</li>
                                                 <li>Enter your password to confirm</li>
                                                 <li>Select reason for deletion (optional)</li>
