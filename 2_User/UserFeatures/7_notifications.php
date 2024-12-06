@@ -51,7 +51,7 @@ $foundReports = $db->getFoundReportsForUser();
                 <li><h6 class="dropdown-header text-warning" style="font-size: 14px;">Missing Cat Reports</h6></li>
                 <?php foreach ($missingReports as $report): ?>
                     <li>
-                        <a class="dropdown-item notification-item" href="viewMore.php?id=<?php echo $report['id']; ?>" style="font-size: 14px; padding: 10px 15px;">
+                        <a class="dropdown-item notification-item" href="3.2_view_more.php?id=<?php echo $report['id']; ?>" style="font-size: 14px; padding: 10px 15px;">
                             <div class="d-flex align-items-center">
                                 <div class="flex-shrink-0">
                                     <i class="bi bi-exclamation-circle text-warning notification-icon" style="font-size: 50px;"></i>
