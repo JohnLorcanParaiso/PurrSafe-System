@@ -81,8 +81,9 @@ class DashboardData extends Database {
     public function getRecentReports($limit = 5) {
         try {
             $stmt = $this->conn->prepare("
-                SELECT r.* 
+                SELECT r.*, u.fullname as reporter_name, r.edited_at 
                 FROM lost_reports r 
+                LEFT JOIN users u ON r.user_id = u.id
                 ORDER BY r.created_at DESC 
                 LIMIT ?
             ");
@@ -107,7 +108,26 @@ class DashboardData extends Database {
 
     public function getReportCount() {
         try {
-            $stmt = $this->conn->prepare("SELECT COUNT(*) as count FROM lost_reports");
+            $stmt = $this->conn->prepare("
+                SELECT COUNT(*) as count 
+                FROM lost_reports 
+                WHERE status != 'found' OR status IS NULL
+            ");
+            $stmt->execute();
+            $result = $stmt->get_result();
+            return $result->fetch_assoc()['count'];
+        } catch (Exception $e) {
+            return 0;
+        }
+    }
+
+    public function getFoundCatCount() {
+        try {
+            $stmt = $this->conn->prepare("
+                SELECT COUNT(*) as count 
+                FROM lost_reports 
+                WHERE status = 'found'
+            ");
             $stmt->execute();
             $result = $stmt->get_result();
             return $result->fetch_assoc()['count'];
@@ -122,6 +142,7 @@ $dashboard = new DashboardData();
 $result = $dashboard->getRecentReports();
 $cat_profile_count = $dashboard->getCatProfileCount();
 $report_count = $dashboard->getReportCount();
+$found_cat_count = $dashboard->getFoundCatCount();
 ?>
 
 <!DOCTYPE html>
@@ -227,18 +248,18 @@ $report_count = $dashboard->getReportCount();
                 <div class="col-md-6">
                     <div class="card shadow-sm">
                         <div class="card-body text-center p-3">
-                            <i class="fas fa-cat mb-2" style="font-size: 1.8rem; color: #6c757d;"></i>
-                            <h1 class="h2 mb-1"><?php echo $cat_profile_count; ?></h1>
-                            <h3 class="text-muted h6 mb-0">Found Cat</h3>
+                            <i class="fas fa-check-circle mb-2" style="font-size: 1.8rem; color: #28a745;"></i>
+                            <h1 class="h2 mb-1"><?php echo $found_cat_count; ?></h1>
+                            <h3 class="text-muted h6 mb-0">Found Cats</h3>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="card shadow-sm">
                         <div class="card-body text-center p-3">
-                            <i class="fas fa-search mb-2" style="font-size: 1.8rem; color: #6c757d;"></i>
+                            <i class="fas fa-search mb-2" style="font-size: 1.8rem; color: #ffc107;"></i>
                             <h1 class="h2 mb-1"><?php echo $report_count; ?></h1>
-                            <h3 class="text-muted h6 mb-0">Missing Cat</h3>
+                            <h3 class="text-muted h6 mb-0">Missing Cats</h3>
                         </div>
                     </div>
                 </div>
@@ -272,10 +293,15 @@ $report_count = $dashboard->getReportCount();
                                         if ($result && $result->num_rows > 0) {
                                             while($row = $result->fetch_assoc()) {
                                                 ?>
-                                                <tr>
-                                                    <td class="px-4"><?php echo htmlspecialchars($row['cat_name']); ?></td>
-                                                    <td><?php echo htmlspecialchars($row['breed']); ?></td>
-                                                    <td><?php echo htmlspecialchars($row['last_seen_date']); ?></td>
+                                                <tr>                                            
+                                                    <td>
+                                                        <?= htmlspecialchars($row['cat_name']) ?>
+                                                        <?php if (!empty($row['edited_at'])): ?>
+                                                            <span class="badge text-white" style="background-color: #6f42c1; font-size: 0.65rem;">Edited</span>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td><?= htmlspecialchars($row['breed']) ?></td>
+                                                    <td><?= htmlspecialchars($row['last_seen_date']) ?></td>
                                                     <td>
                                                         <?php if ($row['status'] === 'found'): ?>
                                                             <span class="badge bg-success">Found</span>

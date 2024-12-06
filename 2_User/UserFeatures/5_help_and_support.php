@@ -54,6 +54,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 $username = $_SESSION['username'] ?? 'Guest';
+
+function isSupportAvailable() {
+    date_default_timezone_set('Asia/Singapore');
+    $current_time = new DateTime();
+    $current_hour = (int)$current_time->format('G');
+    $current_minute = (int)$current_time->format('i');
+    $current_day = (int)$current_time->format('N');
+    
+    $is_weekday = ($current_day >= 1 && $current_day <= 5);
+    $total_minutes = ($current_hour * 60) + $current_minute;
+    
+    // Define business hours in minutes (9 AM to 5 PM)
+    $start_time = 9 * 60;  // 9 AM in minutes
+    $end_time = 17 * 60;   // 5 PM in minutes
+    $closing_warning = $end_time - 30; // 30 minutes before closing
+    
+    if ($is_weekday) {
+        if ($total_minutes >= $start_time && $total_minutes < $closing_warning) {
+            return 'open';
+        } elseif ($total_minutes >= $closing_warning && $total_minutes < $end_time) {
+            return 'closing_soon';
+        }
+    }
+    return 'closed';
+}
+
+$support_status = isSupportAvailable();
 ?>
 
 <!DOCTYPE html>
@@ -111,8 +138,8 @@ $username = $_SESSION['username'] ?? 'Guest';
             </li>
             <li class="nav-item">
                 <form method="POST">
-                    <button type="submit" name="action" value="others" class="btn btn-link nav-link text-dark">
-                        <i class="fas fa-cog me-2"></i> Others
+                    <button type="submit" name="action" value="others" class="btn btn-link nav-link text-dark active">
+                        <i class="fas fa-ellipsis-h me-2"></i> Others
                     </button>
                 </form>
             </li>
@@ -354,5 +381,31 @@ $username = $_SESSION['username'] ?? 'Guest';
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <script>
+    function updateSupportStatus() {
+        fetch('check_support_status.php')
+            .then(response => response.json())
+            .then(data => {
+                const statusBadge = document.querySelector('.support-status-badge');
+                switch(data.status) {
+                    case 'open':
+                        statusBadge.className = 'badge bg-success rounded-pill support-status-badge';
+                        statusBadge.textContent = 'Open Now';
+                        break;
+                    case 'closing_soon':
+                        statusBadge.className = 'badge bg-warning rounded-pill support-status-badge';
+                        statusBadge.textContent = 'About to Close';
+                        break;
+                    case 'closed':
+                        statusBadge.className = 'badge bg-danger rounded-pill support-status-badge';
+                        statusBadge.textContent = 'Closed';
+                        break;
+                }
+            });
+    }
+
+    // Update status every minute
+    setInterval(updateSupportStatus, 60000);
+    </script>
 </body>
 </html>

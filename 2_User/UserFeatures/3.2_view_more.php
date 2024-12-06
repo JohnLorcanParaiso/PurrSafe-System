@@ -134,8 +134,8 @@ date_default_timezone_set('Asia/Singapore');
             </li>
             <li class="nav-item">
                 <form method="POST">
-                    <button type="submit" name="action" value="others" class="btn btn-link nav-link text-dark">
-                        <i class="fas fa-cog me-2"></i> Others
+                    <button type="submit" name="action" value="others" class="btn btn-link nav-link text-dark active">
+                        <i class="fas fa-ellipsis-h me-2"></i> Others
                     </button>
                 </form>
             </li>
@@ -151,8 +151,8 @@ date_default_timezone_set('Asia/Singapore');
 
     <div class="container-custom">
         <div class="mb-4">
-            <a href="3.1_view_reports.php" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                <i class="fas fa-arrow-left me-2"></i>Back to Reports
+            <a href="4.1_my_profile.php" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                <i class="fas fa-arrow-left me-2"></i>Back to My Profile
             </a>
         </div>
 
@@ -282,8 +282,23 @@ date_default_timezone_set('Asia/Singapore');
                             </div>
                         </div>
 
-                        <div class="text-muted">
-                            <small><i class="far fa-clock me-1"></i>Report created on <?= (new DateTime($report['created_at']))->setTimezone(new DateTimeZone('Asia/Singapore'))->format('M j, Y g:i A') ?> (GMT+8)</small>
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-2">Report Timeline</h6>
+                            <div class="d-flex flex-column gap-2">
+                                <div>
+                                    <small class="text-muted">Created:</small>
+                                    <br>
+                                    <?= date('M j, Y g:i A', strtotime($report['created_at'])) ?>
+                                </div>
+                                <?php if ($report['edited_at']): ?>
+                                <div>
+                                    <small class="text-muted">Last Edited:</small>
+                                    <br>
+                                    <?= date('M j, Y g:i A', strtotime($report['edited_at'])) ?>
+                                    <span class="badge bg-info">Edited</span>
+                                </div>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
                 </div>

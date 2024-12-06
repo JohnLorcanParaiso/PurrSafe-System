@@ -151,7 +151,7 @@ $found_reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <div class="container-custom">
         <div class="mb-4">
-            <a href="view.php" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+            <a href="3.1_view_reports.php" class="btn btn-outline-primary btn-sm rounded-pill px-3">
                 <i class="fas fa-arrow-left me-2"></i>Back to Reports
             </a>
         </div>
