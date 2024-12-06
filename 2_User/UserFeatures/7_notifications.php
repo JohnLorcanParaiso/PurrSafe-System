@@ -27,7 +27,7 @@ $foundReports = $db->getFoundReportsForUser();
                 <li><h6 class="dropdown-header text-success" style="font-size: 14px;">Found Cat Reports</h6></li>
                 <?php foreach ($foundReports as $report): ?>
                     <li>
-                        <a class="dropdown-item notification-item" href="found_reports.php?id=<?php echo $report['id']; ?>" style="font-size: 14px; padding: 10px 15px;">
+                        <a class="dropdown-item notification-item" href="3.3_found_reports.php?id=<?php echo $report['id']; ?>" style="font-size: 14px; padding: 10px 15px;">
                             <div class="d-flex align-items-center">
                                 <div class="flex-shrink-0">
                                     <i class="bi bi-check-circle text-success notification-icon" style="font-size: 50px;"></i>
