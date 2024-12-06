@@ -158,7 +158,7 @@ $email = $_SESSION['email'] ?? '';
             <li class="nav-item">
                 <form method="POST">
                     <button type="submit" name="action" value="others" class="btn btn-link nav-link text-dark active">
-                        <i class="fas fa-cog me-2"></i> Others
+                        <i class="fas fa-ellipsis-h me-2"></i> Others
                     </button>
                 </form>
             </li>

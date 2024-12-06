@@ -258,6 +258,7 @@ $userReports = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <th>Details</th>
                                             <th>Status</th>
                                             <th>Created</th>
+                                            <th>Last Edited</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -295,10 +296,26 @@ $userReports = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     <small class="text-muted"><?= htmlspecialchars($report['breed']) ?></small>
                                                 </td>
                                                 <td>
-                                                    <span class="badge bg-warning">Active</span>
+                                                    <?php if (isset($report['status']) && $report['status'] === 'found'): ?>
+                                                        <span class="badge bg-success">Found</span>
+                                                    <?php else: ?>
+                                                        <span class="badge bg-warning">Lost</span>
+                                                    <?php endif; ?>
                                                 </td>
                                                 <td>
-                                                    <small class="text-muted"><?= date('M j, Y', strtotime($report['created_at'])) ?></small>
+                                                    <small class="text-muted">
+                                                        <?= date('M j, Y, g:i A', strtotime($report['created_at'])) ?>
+                                                    </small>
+                                                </td>
+                                                <td>
+                                                    <?php if ($report['edited_at']): ?>
+                                                        <small class="text-muted">
+                                                            <?= date('M j, Y, g:i A', strtotime($report['edited_at'])) ?>
+                                                            <span class="badge text-white" style="background-color: #6f42c1;">Edited</span>
+                                                        </small>
+                                                    <?php else: ?>
+                                                        <small class="text-muted">-</small>
+                                                    <?php endif; ?>
                                                 </td>
                                                 <td>
                                                     <div class="btn-group">
