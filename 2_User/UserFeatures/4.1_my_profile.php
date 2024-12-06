@@ -295,7 +295,11 @@ $userReports = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     <small class="text-muted"><?= htmlspecialchars($report['breed']) ?></small>
                                                 </td>
                                                 <td>
-                                                    <span class="badge bg-warning">Active</span>
+                                                    <?php if (isset($report['status']) && $report['status'] === 'found'): ?>
+                                                        <span class="badge bg-success">Found</span>
+                                                    <?php else: ?>
+                                                        <span class="badge bg-warning">Lost</span>
+                                                    <?php endif; ?>
                                                 </td>
                                                 <td>
                                                     <small class="text-muted"><?= date('M j, Y', strtotime($report['created_at'])) ?></small>
