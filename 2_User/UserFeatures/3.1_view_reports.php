@@ -406,6 +406,7 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                                     $displayImage = formatImagePath($images[0]);
                                                 ?>
                                                     <div class="image-container">
+<<<<<<< HEAD
                                                         <img src="<?= htmlspecialchars($displayImage) ?>" 
                                                              class="card-img-top <?= $report['status'] === 'found' ? 'found-image' : '' ?>" 
                                                              alt="<?= htmlspecialchars($report['cat_name']) ?>"
@@ -422,11 +423,28 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
                                                                 <?= getRandomMessage(false) ?>
                                                                 <i class="fas fa-paw"></i>
                                                             </div>
+=======
+                                                        <?php if ($report['status'] === 'found'): ?>
+                                                            <div class="found-marker">FOUND</div>
+                                                            <img src="<?= htmlspecialchars($displayImage) ?>" 
+                                                                 class="card-img-top" 
+                                                                 alt="<?= htmlspecialchars($report['cat_name']) ?>"
+                                                                 style="height: 200px; object-fit: cover; cursor: pointer;"
+                                                                 onclick="showFoundPopup('<?= htmlspecialchars($report['cat_name']) ?>')">
+                                                        <?php else: ?>
+                                                            <a href="3.2_view_more.php?id=<?php echo $report['id']; ?>">
+                                                                <img src="<?= htmlspecialchars($displayImage) ?>" 
+                                                                     class="card-img-top" 
+                                                                     alt="<?= htmlspecialchars($report['cat_name']) ?>"
+                                                                     style="height: 200px; object-fit: cover; cursor: pointer;">
+                                                            </a>
+>>>>>>> ab225be78c74039bbb999b75a6fb2c305c03f76d
                                                         <?php endif; ?>
                                                     </div>
                                                 <?php endif; ?>
                                                 
                                                 <div class="card-body">
+<<<<<<< HEAD
     <h5 class="card-title d-flex justify-content-between align-items-center">
         <?= htmlspecialchars($report['cat_name']) ?>
         <div>
@@ -491,6 +509,53 @@ $fullname = $_SESSION['fullname'] ?? 'Guest User';
         </div>
     </div>
 </div>
+=======
+                                                    <h5 
+                                                        class="card-title d-flex justify-content-between align-items-center">
+                                                        <?= htmlspecialchars($report['cat_name']) ?>
+                                                        <?php if ($report['user_id'] == $_SESSION['user_id']): ?>
+                                                            <span class="badge bg-info" style="font-size: 0.7rem;">Your Cat</span>
+                                                        <?php else: ?>
+                                                            <span class="badge bg-warning text-dark" style="font-size: 0.7rem;">
+                                                                Reported by: <?= htmlspecialchars($report['reporter_name']) ?>
+                                                            </span>
+                                                        <?php endif; ?>
+                                                    </h5>
+                                                    <p class="card-text">
+                                                        <strong>Breed:</strong> <?= htmlspecialchars($report['breed']) ?><br>
+                                                        <strong>Last Seen:</strong> <?= htmlspecialchars($report['last_seen_date']) ?>
+                                                    </p>
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div class="d-flex gap-1">
+                                                            <a href="3.2_view_more.php?id=<?php echo $report['id']; ?>" 
+                                                               class="btn btn-outline-primary btn-sm rounded-pill px-2 py-1" style="font-size: 0.9rem;">
+                                                                <i class="fas fa-arrow-right"></i> View More
+                                                            </a>
+                                                            <?php if ($report['status'] === 'found'): ?>
+                                                                <a href="#" 
+                                                                   class="btn btn-outline-secondary btn-sm rounded-pill px-2 py-1" 
+                                                                   style="font-size: 0.9rem;"
+                                                                   onclick="showFoundPopup('<?= htmlspecialchars($report['cat_name']) ?>')">
+                                                                    <i class="fas fa-check-circle"></i> Found
+                                                                </a>
+                                                            <?php elseif ($report['user_id'] != $_SESSION['user_id']): ?>
+                                                                <a href="#" 
+                                                                   class="btn btn-outline-primary btn-sm rounded-pill px-2 py-1" 
+                                                                   style="font-size: 0.9rem;"
+                                                                   onclick="event.preventDefault(); showFoundForm('<?= $report['id'] ?>');">
+                                                                    <i class="fas fa-exclamation-circle"></i> Found
+                                                                </a>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                        <small class="text-muted">
+                                                            <?php
+                                                            $created = new DateTime($report['created_at']);
+                                                            echo $created->format('M j, Y g:i A');
+                                                            ?>
+                                                        </small>
+                                                    </div>
+                                                </div>
+>>>>>>> ab225be78c74039bbb999b75a6fb2c305c03f76d
                                             </div>
                                         </div>
                                     <?php endforeach; ?>
